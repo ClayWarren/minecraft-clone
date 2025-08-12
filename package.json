@@ -1,0 +1,17 @@
+{
+  "name": "minecraft-clone",
+  "version": "1.0.0",
+  "description": "A web-based Minecraft clone built with Three.js featuring procedural world generation, realistic graphics, and full block building mechanics.",
+  "main": "game.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}
