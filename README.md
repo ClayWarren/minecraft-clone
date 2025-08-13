@@ -21,6 +21,9 @@ Build a complete Minecraft-style game featuring:
 - **Player Movement**: First-person WASD controls with mouse look
 - **Physics System**: Gravity, collision detection, jumping
 - **Development Workflow**: Vite hot reload, TypeScript compilation
+- **Code Quality Infrastructure**: ESLint 9.33.0, Prettier 3.6.2, pre-commit hooks
+- **AAA Game Development Systems**: Object pooling, fixed timestep physics, performance profiling, asset management
+- **Professional Game Architecture**: State management, input buffering, instanced rendering optimizations
 - **Clean Codebase**: Modular systems, type safety, no 4000-line monoliths!
 
 ### 🚧 In Development (Minecraft Features)
@@ -54,6 +57,12 @@ npm install
 
 # Start development server
 npm run dev
+
+# Code quality commands
+npm run lint          # Check for linting issues
+npm run format        # Format all code
+npm run check         # Run lint + format + tests
+npm test              # Run all tests
 ```
 
 ### Play the Demo
@@ -116,6 +125,7 @@ class BlockSystem extends System {
 
 ### Core Systems Architecture
 
+**Game Logic Systems:**
 - **BlockSystem**: Voxel world management and interactions
 - **WorldSystem**: Chunk generation, biomes, structures
 - **CraftingSystem**: Recipe processing and item creation
@@ -123,6 +133,15 @@ class BlockSystem extends System {
 - **PhysicsSystem**: Player movement and collision
 - **RenderSystem**: Optimized voxel rendering
 - **NetworkSystem**: Multiplayer synchronization
+
+**AAA Game Development Systems:**
+- **ObjectPool**: Memory management for frequently created objects
+- **GameLoop**: Fixed timestep physics with 60 FPS simulation
+- **Profiler**: Real-time performance monitoring and metrics
+- **GameStateManager**: Professional state machine (menu, loading, playing, etc.)
+- **AssetManager**: Resource loading, caching, and lifecycle management
+- **InputBuffer**: Responsive controls with complex input sequences
+- **InstancedVoxelRenderer**: High-performance rendering for thousands of blocks
 
 ### File Structure
 
@@ -132,6 +151,17 @@ src/
 │   ├── blocks.ts           # Block definitions and properties
 │   ├── items.ts            # Item types and recipes
 │   └── world.ts            # World generation types
+├── core/                   # AAA Game Development Systems
+│   ├── ECS.ts             # Entity-Component-System coordinator
+│   ├── ObjectPool.ts      # Memory management and object pooling
+│   ├── GameLoop.ts        # Fixed timestep physics loop (60 FPS)
+│   ├── Profiler.ts        # Performance monitoring and metrics
+│   ├── GameStateManager.ts # Professional state machine
+│   ├── AssetManager.ts    # Resource loading and caching
+│   ├── InputBuffer.ts     # Responsive input system
+│   └── GameDevIntegration.ts # Professional game engine example
+├── rendering/
+│   └── InstancedVoxelRenderer.ts # High-performance voxel rendering
 ├── systems/
 │   ├── BlockSystem.ts      # Block interaction logic
 │   ├── WorldSystem.ts      # Terrain generation
@@ -179,11 +209,27 @@ src/
 
 ## 🔧 Technology Stack
 
-- **[TypeScript](https://typescriptlang.org/)** - Type-safe development
-- **[Three.js](https://threejs.org/)** - WebGL 3D graphics
-- **[Vite](https://vitejs.dev/)** - Fast build and dev server
+### Core Technologies
+- **[TypeScript 5.9.2](https://typescriptlang.org/)** - Type-safe development
+- **[Three.js 0.179.1](https://threejs.org/)** - WebGL 3D graphics
+- **[Vite 7.1.2](https://vitejs.dev/)** - Fast build and dev server
 - **[WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)** - Multiplayer networking
 - **ECS Architecture** - Scalable game entity management
+
+### Game Development & Performance
+- **Object Pooling** - Memory management for reduced garbage collection
+- **Fixed Timestep Physics** - Consistent 60 FPS simulation across all devices
+- **Performance Profiling** - Real-time monitoring of frame times and memory usage
+- **Professional State Management** - Menu, loading, playing, paused states
+- **Asset Management** - Efficient loading, caching, and cleanup of game resources
+- **Input Buffering** - Responsive controls with complex input sequences
+- **Instanced Rendering** - High-performance rendering for thousands of voxel blocks
+
+### Code Quality & Testing
+- **[ESLint 9.33.0](https://eslint.org/)** - Modern flat config with TypeScript support
+- **[Prettier 3.6.2](https://prettier.io/)** - Consistent code formatting
+- **[Vitest](https://vitest.dev/)** - Fast unit and integration testing (214+ tests)
+- **[Husky 9.1.7](https://typicode.github.io/husky/)** - Pre-commit hooks for quality gates
 
 ## 🎮 Why TypeScript + ECS?
 
@@ -199,8 +245,9 @@ src/
 - **Modular systems** - easy to add/remove features
 - **Type safety** - catch errors at compile time
 - **Scalable architecture** - handles complex game features
-- **Testable code** - unit test individual systems
+- **Testable code** - unit test individual systems with 214+ passing tests
 - **Modern tooling** - great IDE support and debugging
+- **Code quality** - automated linting, formatting, and pre-commit hooks
 
 ## 🤝 Contributing
 
@@ -208,8 +255,22 @@ We're building a modern Minecraft clone! Key principles:
 
 1. **Minecraft-First**: Every feature should work toward the Minecraft experience
 2. **TypeScript ECS**: Use component-based architecture for all game systems
-3. **Performance**: Optimize for smooth voxel world rendering
-4. **Compatibility**: Maintain familiar Minecraft gameplay mechanics
+3. **Code Quality**: Use ESLint, Prettier, and write tests for new features
+4. **Performance**: Optimize for smooth voxel world rendering
+5. **Compatibility**: Maintain familiar Minecraft gameplay mechanics
+
+### Development Workflow
+
+```bash
+# Before committing
+npm run check         # Runs linting, formatting, and tests
+npm run fix           # Auto-fixes linting and formatting issues
+
+# Pre-commit hooks automatically run:
+# - ESLint validation
+# - Prettier formatting
+# - Only clean commits are allowed
+```
 
 ## 🎯 Current Priority
 

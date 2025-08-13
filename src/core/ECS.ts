@@ -1,6 +1,10 @@
 import { Entity } from './Entity'
 import { System } from './System'
 
+export interface Component {
+  readonly type: string
+}
+
 export class ECS {
   private entities: Map<string, Entity> = new Map()
   private systems: System[] = []
