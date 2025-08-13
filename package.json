@@ -14,6 +14,8 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
+    "test:integration": "vitest run tests/integration",
+    "test:all": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src/ test/ server.ts",
     "lint:fix": "eslint src/ test/ server.ts --fix",
@@ -51,6 +53,10 @@
     "*.{ts,js}": [
       "eslint --fix",
       "prettier --write"
+    ],
+    "*.ts": [
+      "bash -c 'npx tsc --noEmit --pretty --incremental false'",
+      "vitest related --run --passWithNoTests"
     ],
     "*.{json,md}": [
       "prettier --write"
