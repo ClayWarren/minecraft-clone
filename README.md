@@ -63,6 +63,8 @@ npm run lint          # Check for linting issues
 npm run format        # Format all code
 npm run check         # Run lint + format + tests
 npm test              # Run all tests
+npm run test:coverage # Generate coverage report
+npm run test:e2e      # Run end-to-end tests
 ```
 
 ### Play the Demo
@@ -71,6 +73,49 @@ npm test              # Run all tests
 2. Click "Single Player"
 3. Click anywhere to lock cursor
 4. Use **WASD** to move, **Mouse** to look, **Space** to jump
+
+### 🧪 Testing
+
+We've set up a comprehensive testing suite to ensure code quality and prevent regressions:
+
+#### Test Types
+
+- **Unit Tests**: Test individual components and systems in isolation
+- **Integration Tests**: Verify interactions between systems
+- **End-to-End (E2E) Tests**: Test the complete game flow using Playwright
+
+#### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run unit tests only
+npm run test:run
+
+# Run integration tests
+npm run test:integration
+
+# Run E2E tests (requires dev server running)
+npm run test:e2e
+
+# Run E2E tests with UI (helpful for development)
+npm run test:e2e:ui
+
+# Generate test coverage report
+npm run test:coverage
+```
+
+#### CI/CD Pipeline
+
+We use GitHub Actions for continuous integration. Every push and pull request runs:
+
+- Type checking
+- Linting and formatting
+- Unit tests
+- Integration tests
+- E2E tests
+- Coverage reporting
 
 ## 🎮 Planned Minecraft Features
 
@@ -126,6 +171,7 @@ class BlockSystem extends System {
 ### Core Systems Architecture
 
 **Game Logic Systems:**
+
 - **BlockSystem**: Voxel world management and interactions
 - **WorldSystem**: Chunk generation, biomes, structures
 - **CraftingSystem**: Recipe processing and item creation
@@ -135,6 +181,7 @@ class BlockSystem extends System {
 - **NetworkSystem**: Multiplayer synchronization
 
 **AAA Game Development Systems:**
+
 - **ObjectPool**: Memory management for frequently created objects
 - **GameLoop**: Fixed timestep physics with 60 FPS simulation
 - **Profiler**: Real-time performance monitoring and metrics
@@ -210,6 +257,7 @@ src/
 ## 🔧 Technology Stack
 
 ### Core Technologies
+
 - **[TypeScript 5.9.2](https://typescriptlang.org/)** - Type-safe development
 - **[Three.js 0.179.1](https://threejs.org/)** - WebGL 3D graphics
 - **[Vite 7.1.2](https://vitejs.dev/)** - Fast build and dev server
@@ -217,6 +265,7 @@ src/
 - **ECS Architecture** - Scalable game entity management
 
 ### Game Development & Performance
+
 - **Object Pooling** - Memory management for reduced garbage collection
 - **Fixed Timestep Physics** - Consistent 60 FPS simulation across all devices
 - **Performance Profiling** - Real-time monitoring of frame times and memory usage
@@ -226,6 +275,7 @@ src/
 - **Instanced Rendering** - High-performance rendering for thousands of voxel blocks
 
 ### Code Quality & Testing
+
 - **[ESLint 9.33.0](https://eslint.org/)** - Modern flat config with TypeScript support
 - **[Prettier 3.6.2](https://prettier.io/)** - Consistent code formatting
 - **[Vitest](https://vitest.dev/)** - Fast unit and integration testing (214+ tests)

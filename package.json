@@ -17,6 +17,9 @@
     "test:integration": "vitest run tests/integration",
     "test:all": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report test-results/e2e",
     "lint": "eslint src/ test/ server.ts",
     "lint:fix": "eslint src/ test/ server.ts --fix",
     "format": "prettier --write src/ test/ server.ts *.json *.md",
@@ -27,6 +30,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "@playwright/test": "^1.54.2",
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^20.0.0",
     "@types/three": "^0.179.0",
@@ -55,11 +59,16 @@
       "prettier --write"
     ],
     "*.ts": [
-      "bash -c 'npx tsc --noEmit --pretty --incremental false'",
-      "vitest related --run --passWithNoTests"
+      "bash -c 'npx tsc --noEmit --pretty --incremental false'"
     ],
     "*.{json,md}": [
       "prettier --write"
+    ],
+    "test/unit/**/*.ts": [
+      "vitest related --run --passWithNoTests"
+    ],
+    "test/integration/**/*.ts": [
+      "vitest related --run --passWithNoTests"
     ]
   }
 }
