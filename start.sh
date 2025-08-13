@@ -1,24 +1,24 @@
 #!/bin/bash
 
-# Minecraft Clone - Complete Multiplayer Setup
-echo "🎮 Starting Minecraft Clone..."
+# Minecraft Clone - TypeScript Edition Setup
+echo "🎮 Starting Minecraft Clone (TypeScript Edition)..."
 
 # Kill any existing processes on the ports
 echo "🔄 Cleaning up existing processes..."
 lsof -ti:8080 | xargs kill -9 2>/dev/null || true
 lsof -ti:3000 | xargs kill -9 2>/dev/null || true
 
-# Start the multiplayer server
-echo "🌐 Starting multiplayer server on port 8080..."
-node server.js &
+# Start the multiplayer server (TypeScript)
+echo "🌐 Starting multiplayer server (TypeScript) on port 8080..."
+npm run server &
 SERVER_PID=$!
 
 # Wait a moment for server to start
 sleep 2
 
-# Start the client server
-echo "🖥️  Starting client server on port 3000..."
-python3 -m http.server 3000 &
+# Start the Vite development server
+echo "🖥️  Starting Vite development server on port 3000..."
+npm run dev &
 CLIENT_PID=$!
 
 echo ""
@@ -28,17 +28,17 @@ echo "🎯 Game URLs:"
 echo "   Single Player: http://localhost:3000"
 echo "   Multiplayer:   http://localhost:3000?multiplayer=true"
 echo ""
-echo "📋 Features Available:"
-echo "   ✅ Complete world generation (biomes, caves, villages)"
-echo "   ✅ Full crafting system with tool progression"
-echo "   ✅ Realistic mining with tool durability"
-echo "   ✅ Water physics and flowing mechanics"
-echo "   ✅ Day/night cycle with dynamic lighting"
-echo "   ✅ Weather system (rain, snow, storms)"
-echo "   ✅ Particle effects and block breaking animation"
-echo "   ✅ Multiplayer support with real-time sync"
-echo "   ✅ Chunk-based world streaming"
-echo "   ✅ Server-side world persistence"
+echo "📋 Modern Features:"
+echo "   ✅ TypeScript + ECS Architecture"
+echo "   ✅ Vite Development Server with Hot Reload"
+echo "   ✅ Three.js WebGL Rendering Engine"
+echo "   ✅ Modern Physics System"
+echo "   ✅ Modular Component-Based Design"
+echo "   ✅ Type-Safe Game Development"
+echo "   ✅ No More 4000-Line Monolith!"
+echo "   🚧 World Generation (Coming Soon)"
+echo "   🚧 Multiplayer Support (Coming Soon)"
+echo "   🚧 Crafting System (Coming Soon)"
 echo ""
 echo "🎮 Controls:"
 echo "   WASD - Move"

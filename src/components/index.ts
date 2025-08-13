@@ -1,0 +1,148 @@
+import { Vector3 } from 'three'
+import { 
+  Component, 
+  TransformComponent as ITransformComponent,
+  VelocityComponent as IVelocityComponent,
+  MeshComponent as IMeshComponent,
+  CollisionComponent as ICollisionComponent,
+  HealthComponent as IHealthComponent,
+  InventoryComponent as IInventoryComponent
+} from '@/types'
+
+export class TransformComponent implements ITransformComponent {
+  readonly type = 'transform'
+  public position: Vector3
+  public rotation: Vector3
+  public scale: Vector3
+
+  constructor(
+    position = new Vector3(0, 0, 0),
+    rotation = new Vector3(0, 0, 0),
+    scale = new Vector3(1, 1, 1)
+  ) {
+    this.position = position
+    this.rotation = rotation
+    this.scale = scale
+  }
+}
+
+export class VelocityComponent implements IVelocityComponent {
+  readonly type = 'velocity'
+  public velocity: Vector3
+  public acceleration: Vector3
+
+  constructor(
+    velocity = new Vector3(0, 0, 0),
+    acceleration = new Vector3(0, 0, 0)
+  ) {
+    this.velocity = velocity
+    this.acceleration = acceleration
+  }
+}
+
+export class MeshComponent implements IMeshComponent {
+  readonly type = 'mesh'
+  public mesh: THREE.Mesh
+  public visible: boolean
+
+  constructor(mesh: THREE.Mesh, visible = true) {
+    this.mesh = mesh
+    this.visible = visible
+  }
+}
+
+export class CollisionComponent implements ICollisionComponent {
+  readonly type = 'collision'
+  public bounds: Vector3
+  public solid: boolean
+
+  constructor(bounds = new Vector3(1, 1, 1), solid = true) {
+    this.bounds = bounds
+    this.solid = solid
+  }
+}
+
+export class HealthComponent implements IHealthComponent {
+  readonly type = 'health'
+  public current: number
+  public maximum: number
+
+  constructor(maximum = 100) {
+    this.maximum = maximum
+    this.current = maximum
+  }
+
+  heal(amount: number): void {
+    this.current = Math.min(this.current + amount, this.maximum)
+  }
+
+  damage(amount: number): void {
+    this.current = Math.max(this.current - amount, 0)
+  }
+
+  isDead(): boolean {
+    return this.current <= 0
+  }
+}
+
+export class InventoryComponent implements IInventoryComponent {
+  readonly type = 'inventory'
+  public items: Map<string, number> = new Map()
+  public selectedSlot: number = 0
+  public maxSlots: number
+
+  constructor(maxSlots = 36) {
+    this.maxSlots = maxSlots
+  }
+
+  addItem(itemType: string, count = 1): boolean {
+    const currentCount = this.items.get(itemType) || 0
+    this.items.set(itemType, currentCount + count)
+    return true
+  }
+
+  removeItem(itemType: string, count = 1): boolean {
+    const currentCount = this.items.get(itemType) || 0
+    if (currentCount < count) return false
+    
+    if (currentCount === count) {
+      this.items.delete(itemType)
+    } else {
+      this.items.set(itemType, currentCount - count)
+    }
+    return true
+  }
+
+  hasItem(itemType: string, count = 1): boolean {
+    return (this.items.get(itemType) || 0) >= count
+  }
+
+  getItemCount(itemType: string): number {
+    return this.items.get(itemType) || 0
+  }
+}
+
+export class PlayerComponent implements Component {
+  readonly type = 'player'
+  
+  constructor(
+    public movementSpeed = 5,
+    public jumpHeight = 8,
+    public isGrounded = false,
+    public canFly = false
+  ) {}
+}
+
+export class AIComponent implements Component {
+  readonly type = 'ai'
+  
+  constructor(
+    public behavior: 'passive' | 'hostile' | 'neutral' = 'passive',
+    public target: Vector3 | null = null,
+    public alertRadius = 10,
+    public attackRadius = 2
+  ) {}
+}
+
+// Re-export block components
+export { BlockComponent, WorldComponent } from './BlockComponent'

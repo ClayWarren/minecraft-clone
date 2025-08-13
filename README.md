@@ -1,283 +1,200 @@
-# Minecraft Clone - Complete Multiplayer Edition
+# Minecraft Clone - TypeScript Edition
 
-A complete web-based Minecraft clone with full multiplayer support, built with Three.js featuring procedural world generation, realistic graphics, comprehensive game systems, and real-time multiplayer networking.
+A **modern Minecraft clone** built with **TypeScript and Entity-Component-System (ECS) architecture**. This project rebuilds the classic voxel sandbox game using modern web technologies, clean code patterns, and type safety.
 
-## Features
+## 🎯 Project Vision
 
-### 🎮 Core Gameplay
-- **First-person 3D movement** with pointer lock controls
-- **Procedural terrain generation** with 6 unique biomes
-- **Realistic mining system** with tool requirements and durability
-- **Complete crafting system** with tool progression (wood → diamond)
-- **Inventory management** with visual hotbar system
-- **15+ different block types** with procedural textures
+Build a complete Minecraft-style game featuring:
+- **Voxel world generation** with infinite terrain
+- **Block building and mining** mechanics
+- **Crafting and progression** systems
+- **Multiplayer support** with real-time synchronization
+- **Modern TypeScript codebase** with ECS architecture
 
-### 🌍 Multiplayer Features
-- **Real-time multiplayer** with authoritative server
-- **Chunk-based world streaming** for optimal performance  
-- **Server-side world persistence** with automatic saving
-- **Anti-cheat protection** with server validation
-- **Player management** with join/leave notifications
-- **Lag compensation** with client prediction
+## ✨ Current Status
 
-### 🎨 Block Types & Biomes
-- **6 Unique Biomes**: Plains, Desert, Forest, Ocean, Tundra, Mountains
-- **15+ Block Types**: Grass, Dirt, Stone, Wood, Sand, Water, Snow, Ice, Leaves, Planks, Sandstone
-- **Ore Generation**: Coal, Iron, Diamond with realistic depth distribution
-- **Procedural Textures**: All blocks use canvas-generated textures
-- **Animated Textures**: Flowing water and bubbling lava effects
-- **Village Generation**: Houses, shops, farms with biome-appropriate materials
+### ✅ Completed (TypeScript ECS Foundation)
+- **Modern TypeScript Architecture**: Full ECS pattern implementation
+- **3D Rendering Engine**: Three.js WebGL with physics and lighting
+- **Player Movement**: First-person WASD controls with mouse look
+- **Physics System**: Gravity, collision detection, jumping
+- **Development Workflow**: Vite hot reload, TypeScript compilation
+- **Clean Codebase**: Modular systems, type safety, no 4000-line monoliths!
 
-### 🎨 Graphics & Effects
-- **WebGL rendering** with hardware acceleration
-- **Day/night cycle** with dynamic sun/moon lighting
-- **Weather system** with rain, snow, storms, and lightning
-- **Particle effects** for block breaking and ambient atmosphere
-- **Block breaking animation** with progressive crack overlays
-- **Water physics** with realistic flow and source mechanics
-- **Fog effects** that change with time and weather
-- **Optimized chunk rendering** for smooth performance
+### 🚧 In Development (Minecraft Features)
+- **Block System**: Voxel rendering and interaction
+- **World Generation**: Infinite terrain with biomes and structures  
+- **Mining & Building**: Block placement and destruction
+- **Crafting System**: Tools, items, and progression
+- **Inventory Management**: Item storage and hotbar
+- **Multiplayer**: Real-time world synchronization
+
+### 🎮 Demo Scene
+Currently displays a test environment with:
+- Green grass ground plane
+- Various colored blocks (demonstrating entity system)
+- First-person camera controls
+- Physics and lighting systems
+- Debug information panel
 
 ## 🚀 Quick Start
 
-### Requirements
-- **Node.js** (for multiplayer server)
-- **Python 3** (for client server)
-- **Modern web browser** with WebGL support
+### Installation
+```bash
+# Clone and install
+git clone <repository-url>
+cd minecraft-clone
+npm install
 
-### Easy Setup (Recommended)
-1. **Clone this repository:**
-   ```bash
-   git clone <repository-url>
-   cd minecraft-clone
-   ```
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-3. **Start everything:**
-   ```bash
-   ./start.sh
-   ```
-4. **Play the game:**
-   - Single Player: http://localhost:3000
-   - Multiplayer: http://localhost:3000?multiplayer=true
+# Start development server
+npm run dev
+```
 
-### Manual Setup
-1. **Start multiplayer server:**
-   ```bash
-   node server.js
-   ```
-2. **Start client server:**
-   ```bash
-   python3 -m http.server 3000
-   ```
-3. **Open browser** and choose game mode
+### Play the Demo
+1. Open http://localhost:3000
+2. Click "Single Player"
+3. Click anywhere to lock cursor
+4. Use **WASD** to move, **Mouse** to look, **Space** to jump
 
-### 🎮 Game Modes
+## 🎮 Planned Minecraft Features
 
-#### Single Player
-- Complete offline experience
-- All features available
-- World saves locally in browser
+### 🌍 World & Terrain
+- **Infinite World**: Chunk-based procedural generation
+- **Biomes**: Plains, forests, deserts, mountains, oceans
+- **Terrain Features**: Caves, villages, ore deposits
+- **Day/Night Cycle**: Dynamic lighting and mob spawning
 
-#### Multiplayer 
-- Real-time collaborative building
-- Shared world with persistence
-- Up to multiple players simultaneously
-- Server-side world generation and validation
+### ⛏️ Core Gameplay
+- **Block Types**: Grass, dirt, stone, wood, ores, liquids
+- **Mining System**: Tool requirements, block hardness, durability
+- **Building**: Block placement with physics validation
+- **Crafting**: Tool progression from wood → stone → iron → diamond
 
-## Controls
+### 🎒 Items & Progression
+- **Inventory System**: 36-slot inventory with hotbar
+- **Tools & Weapons**: Pickaxes, swords, axes with durability
+- **Crafting Recipes**: Workbench-based item creation
+- **Resource Gathering**: Mining, logging, farming
 
-### Movement
-- **WASD** - Move forward/backward/left/right
-- **Mouse** - Look around (first-person view)
-- **Space** - Jump
-- **Click anywhere** - Lock cursor to start playing
-- **ESC** - Unlock cursor (to access browser/close game)
+### 🌐 Multiplayer
+- **Real-time Sync**: Shared world state across players
+- **Server Authority**: Anti-cheat with server-side validation
+- **World Persistence**: Save/load world data
+- **Player Management**: Join/leave, chat, permissions
 
-### 🔨 Building & Mining
-- **Left Click** - Start mining block (hold until progress bar completes)
-- **Right Click** - Place selected block from hotbar
-- **Mining requires proper tools** - Stone needs pickaxe, wood needs axe
-- **Tool durability** - Tools break after realistic usage
-- **Block hardness** - Different blocks take different time to mine
+## 🏗️ Technical Architecture
 
-### 🎒 Inventory & Crafting
-- **1-9 Keys** - Select hotbar slot directly
-- **Mouse Scroll Wheel** - Cycle through hotbar slots
-- **C Key** - Open crafting menu with all recipes
-- **Visual hotbar** - shows selected item, quantities, and tool durability
-- **Complete crafting tree** - Wood → Planks → Sticks → Tools
-- **Tool progression** - Wooden → Stone → Iron → Diamond tools
+### Modern TypeScript ECS
+```typescript
+// Entities: Game objects
+const block = new Entity('grass_block')
 
-## 🌍 World Generation
+// Components: Data containers  
+block.addComponent(new TransformComponent(x, y, z))
+block.addComponent(new MeshComponent(grassMesh))
+block.addComponent(new BlockComponent('grass'))
 
-### Infinite World System
-- **Chunk-based generation** - Infinite world expansion
-- **6 unique biomes** with realistic distribution
-- **Biome-specific features:**
-  - **Plains** - Grass plains with scattered trees and villages
-  - **Desert** - Sand dunes with sandstone villages and rare water
-  - **Forest** - Dense tree coverage with wooden structures
-  - **Ocean** - Large water bodies with underwater terrain
-  - **Tundra** - Snow-covered landscape with ice formations
-  - **Mountains** - Stone peaks with exposed ore veins
-- **Underground cave systems** - 3D noise-generated caverns
-- **Village generation** - Houses, shops, farms, and wells
+// Systems: Logic processors
+class BlockSystem extends System {
+  update(deltaTime: number, entities: Entity[]) {
+    // Handle block interactions, mining, placement
+  }
+}
+```
 
-### ⚙️ Technical Systems
-- **Authoritative server** - All game logic validated server-side
-- **Chunk streaming** - Only loads visible world sections
-- **Real-time synchronization** - All player actions synced instantly  
-- **Anti-cheat protection** - Server validates all movements and actions
-- **World persistence** - Automatic saving and loading of world state
-- **Lag compensation** - Smooth movement with network prediction
-
-## 🎯 Game Progression
-
-### Starting Resources
-- **Basic blocks:** 64 Grass, Dirt, Stone + 32 Wood, Sand
-- **Unlimited bedrock** for testing/creative building
-- **No tools** - Must craft your first wooden pickaxe
-
-### Crafting Progression
-1. **Wood → Planks** (1 wood = 4 planks)
-2. **Planks → Sticks** (2 planks = 4 sticks)  
-3. **Planks + Sticks → Wooden Tools** (basic tools)
-4. **Mine stone → Craft Stone Tools** (2x efficiency)
-5. **Mine iron ore → Smelt → Iron Tools** (3x efficiency)
-6. **Mine diamonds → Diamond Tools** (4x efficiency, highest durability)
-
-### Mining Requirements
-- **Stone/Coal:** Wooden pickaxe or better
-- **Iron Ore:** Stone pickaxe or better  
-- **Diamond Ore:** Iron pickaxe or better
-- **Wood blocks:** Any axe for faster mining
-- **Dirt/Sand:** Any shovel for faster mining
-
-## Browser Compatibility
-
-### Recommended Browsers
-- **Chrome/Chromium** - Best performance
-- **Firefox** - Good performance
-- **Safari** - Good performance on macOS
-- **Edge** - Good performance on Windows
-
-### Performance Notes
-- **M2 MacBook Pro optimized** - excellent performance
-- **8GB RAM friendly** - efficient memory usage
-- **WebGL required** - all modern browsers support this
-- **Mobile devices** - works but controls are optimized for desktop
-
-## Architecture
-
-### Technology Stack
-- **Three.js** - 3D graphics library
-- **WebGL** - Hardware-accelerated rendering
-- **Vanilla JavaScript** - No framework dependencies
-- **HTML5 Canvas** - Rendering surface
-- **CSS3** - UI styling
+### Core Systems Architecture
+- **BlockSystem**: Voxel world management and interactions
+- **WorldSystem**: Chunk generation, biomes, structures
+- **CraftingSystem**: Recipe processing and item creation
+- **InventorySystem**: Item management and UI
+- **PhysicsSystem**: Player movement and collision
+- **RenderSystem**: Optimized voxel rendering
+- **NetworkSystem**: Multiplayer synchronization
 
 ### File Structure
 ```
-minecraft-clone/
-├── index.html          # Main HTML structure and game mode selection UI
-├── game.js             # Core game logic, Three.js rendering, and multiplayer client
-├── server.js           # Complete multiplayer server with all game systems
-├── start.sh            # Easy startup script for both server and client
-├── package.json        # Node.js dependencies and scripts
-├── package-lock.json   # Dependency lock file
-├── node_modules/       # Node.js dependencies (ws for WebSocket)
-├── README.md           # Complete documentation
-├── .claude/            # Claude Code settings
-├── .venv/              # Python virtual environment
-└── path/               # Additional virtual environment directory
+src/
+├── types/
+│   ├── blocks.ts           # Block definitions and properties
+│   ├── items.ts            # Item types and recipes
+│   └── world.ts            # World generation types
+├── systems/
+│   ├── BlockSystem.ts      # Block interaction logic
+│   ├── WorldSystem.ts      # Terrain generation
+│   ├── CraftingSystem.ts   # Recipe processing
+│   └── InventorySystem.ts  # Item management
+├── components/
+│   ├── BlockComponent.ts   # Block data and properties
+│   ├── ItemComponent.ts    # Item stacks and metadata
+│   └── ChunkComponent.ts   # World chunk data
+└── world/
+    ├── WorldGenerator.ts   # Terrain algorithms
+    ├── BiomeSystem.ts      # Biome definitions
+    └── ChunkManager.ts     # Chunk loading/unloading
 ```
 
-## ✅ Completed Features
+## 🛠️ Development Roadmap
 
-### Core Systems
-- ✅ **Complete multiplayer networking** with authoritative server
-- ✅ **Full crafting system** with realistic tool progression
-- ✅ **Advanced world generation** with biomes, caves, villages
-- ✅ **Day/night cycle** with dynamic lighting and sky colors
-- ✅ **Weather system** with rain, snow, storms, and lightning
-- ✅ **Water physics** with realistic flow mechanics
-- ✅ **Particle effects** for immersive block breaking
-- ✅ **Tool durability** and mining requirements
-- ✅ **Chunk-based world streaming** for infinite worlds
-- ✅ **World persistence** with automatic save/load
+### Phase 1: Block System ⏳
+- [ ] Block entity creation and rendering
+- [ ] Block interaction (place/destroy)
+- [ ] Basic material system
+- [ ] Simple inventory
 
-### Visual Effects
-- ✅ **Procedural block textures** (grass, stone, ores, etc.)
-- ✅ **Animated textures** for water and lava
-- ✅ **Block breaking animation** with progressive cracks
-- ✅ **Weather particles** (rain drops, snow flakes)
-- ✅ **Dynamic fog** that changes with weather and time
-- ✅ **Realistic lighting** with sun/moon positioning
+### Phase 2: World Generation 🗺️
+- [ ] Chunk-based terrain generation
+- [ ] Basic biomes (plains, forest, desert)
+- [ ] Ore distribution and caves
+- [ ] World persistence
 
-### Multiplayer Features
-- ✅ **Real-time player synchronization**
-- ✅ **Server-side physics validation**
-- ✅ **Anti-cheat protection**
-- ✅ **Lag compensation and prediction**
-- ✅ **Player management** (join/leave notifications)
-- ✅ **Shared world state** with persistence
+### Phase 3: Gameplay Systems ⛏️
+- [ ] Mining with tool requirements
+- [ ] Crafting table and recipes  
+- [ ] Player inventory UI
+- [ ] Tool durability system
 
-## Development
+### Phase 4: Advanced Features 🌟
+- [ ] Multiplayer networking
+- [ ] Mob spawning and AI
+- [ ] Weather and day/night
+- [ ] Advanced world features
 
-### Local Development
-1. **Edit files** in any text editor
-2. **Refresh browser** to see changes
-3. **Use browser dev tools** for debugging
-4. **No build process** required - direct file editing
+## 🔧 Technology Stack
 
-### Adding Features
-- **Block types:** Add to `materials` object in `game.js`
-- **UI elements:** Modify `index.html` and CSS
-- **Game mechanics:** Extend functions in `game.js`
-- **Graphics:** Use Three.js documentation for advanced features
+- **[TypeScript](https://typescriptlang.org/)** - Type-safe development
+- **[Three.js](https://threejs.org/)** - WebGL 3D graphics
+- **[Vite](https://vitejs.dev/)** - Fast build and dev server
+- **[WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)** - Multiplayer networking
+- **ECS Architecture** - Scalable game entity management
 
-## 🚀 Performance & Optimization
+## 🎮 Why TypeScript + ECS?
 
-### Client Optimization
-- **Chunk-based rendering** - Only renders visible world sections
-- **Merged mesh geometry** - Efficient block rendering
-- **Particle system optimization** - Limited particle count
-- **Texture atlas system** - Reduced GPU texture switches
-- **Fog culling** - Distant objects not rendered
+### Problems with Original Monolithic Code
+- **4000+ line single file** - impossible to maintain
+- **No type safety** - runtime errors and bugs
+- **Coupled systems** - changes break multiple features
+- **No testing** - difficult to verify functionality
 
-### Server Optimization  
-- **20 TPS game loop** - Smooth server-side physics
-- **Chunk streaming** - Only sends visible chunks to players
-- **Delta compression** - Only sends changed data
-- **Efficient collision detection** - AABB-based physics
-- **Memory management** - Automatic cleanup of unused chunks
+### Benefits of TypeScript ECS
+- **Modular systems** - easy to add/remove features
+- **Type safety** - catch errors at compile time
+- **Scalable architecture** - handles complex game features
+- **Testable code** - unit test individual systems
+- **Modern tooling** - great IDE support and debugging
 
-### Network Optimization
-- **Message queuing** - Reliable delivery of critical updates
-- **Rate limiting** - Prevents spam and reduces bandwidth
-- **State compression** - Minimal data transfer
-- **Client prediction** - Smooth movement with lag compensation
+## 🤝 Contributing
 
-## Troubleshooting
+We're building a modern Minecraft clone! Key principles:
 
-### Common Issues
-- **Black screen:** Check browser console for WebGL errors
-- **Poor performance:** Close other applications, use Chrome
-- **Controls not working:** Make sure you clicked to lock the cursor
-- **Blocks not placing:** Check if you have blocks in inventory
+1. **Minecraft-First**: Every feature should work toward the Minecraft experience
+2. **TypeScript ECS**: Use component-based architecture for all game systems
+3. **Performance**: Optimize for smooth voxel world rendering
+4. **Compatibility**: Maintain familiar Minecraft gameplay mechanics
 
-### System Requirements
-- **WebGL 1.0 support** (all modern browsers)
-- **4GB+ RAM** recommended
-- **Dedicated GPU** helpful but not required
-- **Modern CPU** - M2 MacBook Pro is perfect
+## 🎯 Current Priority
 
-## License
-Open source - feel free to modify and expand!
+**Get basic block placement/destruction working** - this is the core of Minecraft gameplay and will demonstrate the ECS architecture handling voxel world interactions.
 
 ---
 
-**Have fun building! 🎮⛏️🏗️**
+**Building Minecraft the right way with modern web technologies** ⛏️🎮
