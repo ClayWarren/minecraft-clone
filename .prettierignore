@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Coverage reports
+coverage/
+
+# Generated files
+*.min.js
+*.min.css
+
+# Config files that shouldn't be formatted
+package-lock.json
+*.log
+
+# Three.js examples (if any)
+examples/jsm/
+
+# Test snapshots
+**/*.snap

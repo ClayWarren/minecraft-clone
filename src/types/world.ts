@@ -75,9 +75,9 @@ export const BIOMES: Record<string, BiomeData> = {
     caveChance: 0.15,
     oreChance: 0.1,
     waterLevel: 62,
-    snowLevel: 90
+    snowLevel: 90,
   },
-  
+
   forest: {
     id: 'forest',
     name: 'Forest',
@@ -93,9 +93,9 @@ export const BIOMES: Record<string, BiomeData> = {
     caveChance: 0.12,
     oreChance: 0.08,
     waterLevel: 62,
-    snowLevel: 90
+    snowLevel: 90,
   },
-  
+
   desert: {
     id: 'desert',
     name: 'Desert',
@@ -111,9 +111,9 @@ export const BIOMES: Record<string, BiomeData> = {
     caveChance: 0.1,
     oreChance: 0.12,
     waterLevel: 62,
-    snowLevel: 150
+    snowLevel: 150,
   },
-  
+
   mountains: {
     id: 'mountains',
     name: 'Mountains',
@@ -129,9 +129,9 @@ export const BIOMES: Record<string, BiomeData> = {
     caveChance: 0.2,
     oreChance: 0.2,
     waterLevel: 62,
-    snowLevel: 80
+    snowLevel: 80,
   },
-  
+
   ocean: {
     id: 'ocean',
     name: 'Ocean',
@@ -147,9 +147,9 @@ export const BIOMES: Record<string, BiomeData> = {
     caveChance: 0.05,
     oreChance: 0.05,
     waterLevel: 62,
-    snowLevel: 90
+    snowLevel: 90,
   },
-  
+
   tundra: {
     id: 'tundra',
     name: 'Tundra',
@@ -165,8 +165,8 @@ export const BIOMES: Record<string, BiomeData> = {
     caveChance: 0.1,
     oreChance: 0.08,
     waterLevel: 62,
-    snowLevel: 0
-  }
+    snowLevel: 0,
+  },
 }
 
 // World generation utilities
@@ -174,11 +174,11 @@ export function getChunkKey(chunkX: number, chunkZ: number): string {
   return `${chunkX},${chunkZ}`
 }
 
-export function worldToChunk(worldCoord: number, chunkSize: number = 16): number {
+export function worldToChunk(worldCoord: number, chunkSize = 16): number {
   return Math.floor(worldCoord / chunkSize)
 }
 
-export function chunkToWorld(chunkCoord: number, chunkSize: number = 16): number {
+export function chunkToWorld(chunkCoord: number, chunkSize = 16): number {
   return chunkCoord * chunkSize
 }
 

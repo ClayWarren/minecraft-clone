@@ -15,7 +15,13 @@ export class RenderSystem extends System {
   private rainParticles: THREE.Points | null = null
   private snowParticles: THREE.Points | null = null
 
-  constructor(scene: THREE.Scene, renderer: THREE.WebGLRenderer, camera: THREE.PerspectiveCamera, ambientLight: THREE.AmbientLight, directionalLight: THREE.DirectionalLight) {
+  constructor(
+    scene: THREE.Scene,
+    renderer: THREE.WebGLRenderer,
+    camera: THREE.PerspectiveCamera,
+    ambientLight: THREE.AmbientLight,
+    directionalLight: THREE.DirectionalLight
+  ) {
     super()
     this.scene = scene
     this.renderer = renderer
@@ -37,7 +43,12 @@ export class RenderSystem extends System {
       rainPositions[i + 2] = Math.random() * 200 - 100
     }
     rainGeometry.setAttribute('position', new THREE.BufferAttribute(rainPositions, 3))
-    const rainMaterial = new THREE.PointsMaterial({ color: 0xADD8E6, size: 0.5, transparent: true, opacity: 0.6 })
+    const rainMaterial = new THREE.PointsMaterial({
+      color: 0xadd8e6,
+      size: 0.5,
+      transparent: true,
+      opacity: 0.6,
+    })
     this.rainParticles = new THREE.Points(rainGeometry, rainMaterial)
     this.rainParticles.visible = false
     this.scene.add(this.rainParticles)
@@ -52,7 +63,12 @@ export class RenderSystem extends System {
       snowPositions[i + 2] = Math.random() * 200 - 100
     }
     snowGeometry.setAttribute('position', new THREE.BufferAttribute(snowPositions, 3))
-    const snowMaterial = new THREE.PointsMaterial({ color: 0xFFFFFF, size: 0.8, transparent: true, opacity: 0.8 })
+    const snowMaterial = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.8,
+      transparent: true,
+      opacity: 0.8,
+    })
     this.snowParticles = new THREE.Points(snowGeometry, snowMaterial)
     this.snowParticles.visible = false
     this.scene.add(this.snowParticles)

@@ -34,17 +34,17 @@ export class PhysicsSystem extends System {
       // Handle collisions if collision component exists
       if (collision) {
         const finalPosition = this.handleCollisions(newPosition, collision, transform.position)
-        
+
         // Check if we hit the ground (stopped falling)
         if (newPosition.y !== finalPosition.y && velocity.velocity.y < 0) {
           velocity.velocity.y = 0
           // Set grounded flag if entity has player component
           const player = entity.getComponent('player')
           if (player) {
-            (player as any).isGrounded = true
+            ;(player as { isGrounded?: boolean }).isGrounded = true
           }
         }
-        
+
         transform.position.copy(finalPosition)
       } else {
         transform.position.copy(newPosition)
@@ -55,18 +55,22 @@ export class PhysicsSystem extends System {
     }
   }
 
-  private handleCollisions(newPosition: Vector3, collision: CollisionComponent, _currentPosition: Vector3): Vector3 {
+  private handleCollisions(
+    newPosition: Vector3,
+    collision: CollisionComponent,
+    _currentPosition: Vector3
+  ): Vector3 {
     // Simple AABB collision detection with world blocks
     // This is a simplified version - real implementation would check against block data
-    
+
     const finalPosition = newPosition.clone()
     const bounds = collision.bounds
-    
+
     // Check ground collision (simplified - assumes ground at y=0)
-    if (finalPosition.y - bounds.y/2 < 0) {
-      finalPosition.y = bounds.y/2
+    if (finalPosition.y - bounds.y / 2 < 0) {
+      finalPosition.y = bounds.y / 2
     }
-    
+
     return finalPosition
   }
 }

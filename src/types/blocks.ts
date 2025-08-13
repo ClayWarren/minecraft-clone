@@ -20,7 +20,7 @@ export interface BlockPosition {
 export interface BlockData {
   type: string
   position: BlockPosition
-  metadata?: any
+  metadata?: Record<string, unknown>
 }
 
 // Block definitions
@@ -32,9 +32,9 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: [],
     transparent: true,
     solid: false,
-    color: 0x000000
+    color: 0x000000,
   },
-  
+
   grass: {
     id: 'grass',
     name: 'Grass Block',
@@ -43,9 +43,9 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: ['dirt'],
     transparent: false,
     solid: true,
-    color: 0x7CB342
+    color: 0x7cb342,
   },
-  
+
   dirt: {
     id: 'dirt',
     name: 'Dirt',
@@ -54,9 +54,9 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: ['dirt'],
     transparent: false,
     solid: true,
-    color: 0x8D6E63
+    color: 0x8d6e63,
   },
-  
+
   stone: {
     id: 'stone',
     name: 'Stone',
@@ -65,9 +65,9 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: ['cobblestone'],
     transparent: false,
     solid: true,
-    color: 0x757575
+    color: 0x757575,
   },
-  
+
   cobblestone: {
     id: 'cobblestone',
     name: 'Cobblestone',
@@ -76,9 +76,9 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: ['cobblestone'],
     transparent: false,
     solid: true,
-    color: 0x616161
+    color: 0x616161,
   },
-  
+
   wood: {
     id: 'wood',
     name: 'Wood Log',
@@ -87,9 +87,9 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: ['wood'],
     transparent: false,
     solid: true,
-    color: 0x8D6E63
+    color: 0x8d6e63,
   },
-  
+
   planks: {
     id: 'planks',
     name: 'Wood Planks',
@@ -98,9 +98,9 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: ['planks'],
     transparent: false,
     solid: true,
-    color: 0xA1887F
+    color: 0xa1887f,
   },
-  
+
   sand: {
     id: 'sand',
     name: 'Sand',
@@ -109,9 +109,9 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: ['sand'],
     transparent: false,
     solid: true,
-    color: 0xF5DEB3
+    color: 0xf5deb3,
   },
-  
+
   water: {
     id: 'water',
     name: 'Water',
@@ -119,9 +119,9 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: [],
     transparent: true,
     solid: false,
-    color: 0x2196F3
+    color: 0x2196f3,
   },
-  
+
   coal_ore: {
     id: 'coal_ore',
     name: 'Coal Ore',
@@ -130,9 +130,9 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: ['coal'],
     transparent: false,
     solid: true,
-    color: 0x424242
+    color: 0x424242,
   },
-  
+
   iron_ore: {
     id: 'iron_ore',
     name: 'Iron Ore',
@@ -141,9 +141,9 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: ['iron_ore'],
     transparent: false,
     solid: true,
-    color: 0xBCAAA4
+    color: 0xbcaaa4,
   },
-  
+
   diamond_ore: {
     id: 'diamond_ore',
     name: 'Diamond Ore',
@@ -152,9 +152,9 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: ['diamond'],
     transparent: false,
     solid: true,
-    color: 0x81D4FA
+    color: 0x81d4fa,
   },
-  
+
   bedrock: {
     id: 'bedrock',
     name: 'Bedrock',
@@ -163,7 +163,7 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     transparent: false,
     solid: true,
     color: 0x263238,
-    texture: '/textures/blocks/bedrock.png'
+    texture: '/textures/blocks/bedrock.png',
   },
   leaves: {
     id: 'leaves',
@@ -173,8 +173,8 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: ['stick'],
     transparent: true,
     solid: false,
-    color: 0x4CAF50,
-    texture: '/textures/blocks/leaves.png'
+    color: 0x4caf50,
+    texture: '/textures/blocks/leaves.png',
   },
   glass: {
     id: 'glass',
@@ -183,8 +183,8 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: [],
     transparent: true,
     solid: false,
-    color: 0xADD8E6,
-    texture: '/textures/blocks/glass.png'
+    color: 0xadd8e6,
+    texture: '/textures/blocks/glass.png',
   },
   crafting_table: {
     id: 'crafting_table',
@@ -194,9 +194,13 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: ['crafting_table'],
     transparent: false,
     solid: true,
-    color: 0x8B4513,
-    texture: { top: '/textures/blocks/crafting_table_top.png', side: '/textures/blocks/crafting_table_side.png', bottom: '/textures/blocks/planks.png' }
-  }
+    color: 0x8b4513,
+    texture: {
+      top: '/textures/blocks/crafting_table_top.png',
+      side: '/textures/blocks/crafting_table_side.png',
+      bottom: '/textures/blocks/planks.png',
+    },
+  },
 }
 
 // Tool effectiveness for mining
@@ -208,31 +212,31 @@ export const TOOL_EFFECTIVENESS: Record<string, Record<string, number>> = {
     wood: 0.5,
     stone: 0.1,
     leaves: 0.1,
-    glass: 0.1
+    glass: 0.1,
   },
-  
+
   pickaxe: {
     stone: 3,
     cobblestone: 3,
     coal_ore: 3,
     iron_ore: 3,
-    diamond_ore: 3
+    diamond_ore: 3,
   },
-  
+
   axe: {
     wood: 3,
     planks: 3,
-    crafting_table: 3
+    crafting_table: 3,
   },
-  
+
   shovel: {
     dirt: 3,
     grass: 3,
-    sand: 3
+    sand: 3,
   },
   shears: {
-    leaves: 3
-  }
+    leaves: 3,
+  },
 }
 
 // Utility functions
@@ -245,7 +249,11 @@ export function getBlockAt(position: BlockPosition, blocks: Map<string, string>)
   return blocks.get(key) || 'air'
 }
 
-export function setBlockAt(position: BlockPosition, blockType: string, blocks: Map<string, string>): void {
+export function setBlockAt(
+  position: BlockPosition,
+  blockType: string,
+  blocks: Map<string, string>
+): void {
   const key = `${position.x},${position.y},${position.z}`
   if (blockType === 'air') {
     blocks.delete(key)

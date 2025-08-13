@@ -10,7 +10,7 @@ export class WorldGenerator {
       treeChance: 0.01,
       villageChance: 0.05,
       temperature: 0.5,
-      humidity: 0.5
+      humidity: 0.5,
     },
     forest: {
       surface: 'grass',
@@ -18,7 +18,7 @@ export class WorldGenerator {
       treeChance: 0.1,
       villageChance: 0.02,
       temperature: 0.6,
-      humidity: 0.7
+      humidity: 0.7,
     },
     desert: {
       surface: 'sand',
@@ -26,7 +26,7 @@ export class WorldGenerator {
       treeChance: 0.0,
       villageChance: 0.03,
       temperature: 0.9,
-      humidity: 0.1
+      humidity: 0.1,
     },
     mountains: {
       surface: 'stone',
@@ -34,8 +34,8 @@ export class WorldGenerator {
       treeChance: 0.02,
       villageChance: 0.01,
       temperature: 0.3,
-      humidity: 0.4
-    }
+      humidity: 0.4,
+    },
   }
 
   public generateChunk(chunkX: number, chunkZ: number): Chunk {
@@ -44,15 +44,15 @@ export class WorldGenerator {
       z: chunkZ,
       blocks: new Map(),
       generated: true,
-      modified: false
+      modified: false,
     }
 
     // Generate terrain for this chunk
     this.generateTerrain(chunk)
-    
+
     // Generate structures
     this.generateStructures(chunk)
-    
+
     // Generate ores
     this.generateOres(chunk)
 
@@ -70,10 +70,10 @@ export class WorldGenerator {
 
         // Get biome for this position
         const biome = this.getBiome(worldX, worldZ)
-        
+
         // Generate height map
         const height = this.getHeight(worldX, worldZ, biome)
-        
+
         // Generate terrain layers
         for (let y = 0; y < worldHeight; y++) {
           const blockKey = `${worldX},${y},${worldZ}`
@@ -160,7 +160,7 @@ export class WorldGenerator {
     const baseHeight = 64
     const mountainHeight = this.noise(x * 0.005, z * 0.005) * 32
     const detailHeight = this.noise(x * 0.02, z * 0.02) * 8
-    
+
     let height = baseHeight + mountainHeight + detailHeight
 
     // Adjust height based on biome
@@ -232,7 +232,7 @@ export class WorldGenerator {
           }
 
           const blockKey = `${blockX},${blockY},${blockZ}`
-          
+
           if (dy === 0) {
             chunk.blocks.set(blockKey, 'stone') // Foundation
           } else if (dy === houseHeight - 1) {
@@ -273,7 +273,7 @@ export class WorldGenerator {
 
   private getOreType(x: number, y: number, z: number): string | null {
     const oreNoise = this.noise(x * 0.1, y * 0.1, z * 0.1)
-    
+
     if (oreNoise > 0.95) {
       return 'diamond_ore'
     } else if (oreNoise > 0.9) {
@@ -283,7 +283,7 @@ export class WorldGenerator {
     } else if (oreNoise > 0.8) {
       return 'gold_ore'
     }
-    
+
     return null
   }
 
@@ -296,12 +296,12 @@ export class WorldGenerator {
   private noise(x: number, y: number, z?: number): number {
     // Simple hash-based noise function
     let hash = this.SEED
-    hash = ((hash << 5) + hash) + Math.floor(x)
-    hash = ((hash << 5) + hash) + Math.floor(y)
+    hash = (hash << 5) + hash + Math.floor(x)
+    hash = (hash << 5) + hash + Math.floor(y)
     if (z !== undefined) {
-      hash = ((hash << 5) + hash) + Math.floor(z)
+      hash = (hash << 5) + hash + Math.floor(z)
     }
-    
+
     // Convert to 0-1 range
     return Math.abs(hash) / 2147483647
   }

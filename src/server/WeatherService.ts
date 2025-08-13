@@ -10,7 +10,7 @@ export class WeatherService {
     type: 'clear',
     intensity: 0.0,
     duration: 300000, // 5 minutes
-    nextWeatherChange: Date.now() + 300000
+    nextWeatherChange: Date.now() + 300000,
   }
 
   constructor() {
@@ -23,7 +23,7 @@ export class WeatherService {
       type: 'clear',
       intensity: 0.0,
       duration: 300000, // 5 minutes
-      nextWeatherChange: Date.now() + 300000
+      nextWeatherChange: Date.now() + 300000,
     }
   }
 
@@ -32,13 +32,13 @@ export class WeatherService {
       this.changeWeather()
       return {
         changed: true,
-        weather: this.weather
+        weather: this.weather,
       }
     }
-    
+
     return {
       changed: false,
-      weather: this.weather
+      weather: this.weather,
     }
   }
 

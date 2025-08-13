@@ -1,11 +1,11 @@
 import { Vector3 } from 'three'
-import { 
-  Component, 
+import {
+  Component,
   TransformComponent as ITransformComponent,
   VelocityComponent as IVelocityComponent,
   MeshComponent as IMeshComponent,
   CollisionComponent as ICollisionComponent,
-  HealthComponent as IHealthComponent
+  HealthComponent as IHealthComponent,
 } from '@/types'
 
 export class TransformComponent implements ITransformComponent {
@@ -30,10 +30,7 @@ export class VelocityComponent implements IVelocityComponent {
   public velocity: Vector3
   public acceleration: Vector3
 
-  constructor(
-    velocity = new Vector3(0, 0, 0),
-    acceleration = new Vector3(0, 0, 0)
-  ) {
+  constructor(velocity = new Vector3(0, 0, 0), acceleration = new Vector3(0, 0, 0)) {
     this.velocity = velocity
     this.acceleration = acceleration
   }
@@ -88,7 +85,7 @@ export class HealthComponent implements IHealthComponent {
 
 export class PlayerComponent implements Component {
   readonly type = 'player'
-  
+
   constructor(
     public movementSpeed = 5,
     public jumpHeight = 8,
@@ -99,7 +96,7 @@ export class PlayerComponent implements Component {
 
 export class AIComponent implements Component {
   readonly type = 'ai'
-  
+
   constructor(
     public behavior: 'passive' | 'hostile' | 'neutral' = 'passive',
     public target: Vector3 | null = null,

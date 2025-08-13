@@ -38,11 +38,10 @@ describe('WorldGenerator', () => {
       const chunk = worldGenerator.generateChunk(0, 0)
 
       // Check that bedrock exists at y=0
-      const bedrockBlocks = Array.from(chunk.blocks.entries())
-        .filter(([key, blockType]) => {
-          const [, y] = key.split(',').map(Number)
-          return y === 0 && blockType === 'bedrock'
-        })
+      const bedrockBlocks = Array.from(chunk.blocks.entries()).filter(([key, blockType]) => {
+        const [, y] = key.split(',').map(Number)
+        return y === 0 && blockType === 'bedrock'
+      })
 
       expect(bedrockBlocks.length).toBeGreaterThan(0)
     })
@@ -51,14 +50,11 @@ describe('WorldGenerator', () => {
       const chunk = worldGenerator.generateChunk(0, 0)
 
       // Check that stone exists in lower layers
-      const stoneBlocks = Array.from(chunk.blocks.entries())
-        .filter(([key, blockType]) => {
-          const [, y] = key.split(',').map(Number)
-          return y > 0 && y < 60 && blockType === 'stone'
-        })
+      const stoneBlocks = Array.from(chunk.blocks.entries()).filter(([key, blockType]) => {
+        const [, y] = key.split(',').map(Number)
+        return y > 0 && y < 60 && blockType === 'stone'
+      })
 
-
-      
       // Stone blocks might not be generated in every chunk, so just verify the structure
       expect(chunk.blocks.size).toBeGreaterThan(0)
     })
@@ -67,11 +63,10 @@ describe('WorldGenerator', () => {
       const chunk = worldGenerator.generateChunk(0, 0)
 
       // Check that surface blocks exist (grass, sand, etc.)
-      const surfaceBlocks = Array.from(chunk.blocks.entries())
-        .filter(([key, blockType]) => {
-          const [, y] = key.split(',').map(Number)
-          return y > 20 && ['grass', 'sand', 'stone'].includes(blockType)
-        })
+      const surfaceBlocks = Array.from(chunk.blocks.entries()).filter(([key, blockType]) => {
+        const [, y] = key.split(',').map(Number)
+        return y > 20 && ['grass', 'sand', 'stone'].includes(blockType)
+      })
 
       // Surface blocks might not be generated in every chunk, so just verify the structure
       expect(chunk.blocks.size).toBeGreaterThan(0)
@@ -82,7 +77,7 @@ describe('WorldGenerator', () => {
     it('should generate surface blocks for biomes', () => {
       // Test that chunks generate surface blocks
       const chunk = worldGenerator.generateChunk(0, 0)
-      
+
       const surfaceBlocks = Array.from(chunk.blocks.entries())
         .filter(([key, blockType]) => {
           const [, y] = key.split(',').map(Number)
@@ -92,7 +87,7 @@ describe('WorldGenerator', () => {
 
       // Surface blocks might not be generated in every chunk, so just verify the structure
       expect(chunk.blocks.size).toBeGreaterThan(0)
-      
+
       // All surface blocks should be valid biome surface types
       const validSurfaceTypes = ['grass', 'sand', 'stone']
       surfaceBlocks.forEach(blockType => {
@@ -102,7 +97,7 @@ describe('WorldGenerator', () => {
 
     it('should generate appropriate surface blocks for biomes', () => {
       const chunk = worldGenerator.generateChunk(0, 0)
-      
+
       const surfaceBlocks = Array.from(chunk.blocks.entries())
         .filter(([key, blockType]) => {
           const [, y] = key.split(',').map(Number)
@@ -112,10 +107,10 @@ describe('WorldGenerator', () => {
 
       // Should have some blocks in the upper region
       expect(surfaceBlocks.length).toBeGreaterThan(0)
-      
+
       // Should have some recognizable block types (more lenient check)
       const recognizableTypes = ['grass', 'sand', 'stone', 'dirt', 'air', 'water', 'snow']
-      const hasRecognizableBlocks = surfaceBlocks.some(blockType => 
+      const hasRecognizableBlocks = surfaceBlocks.some(blockType =>
         recognizableTypes.includes(blockType)
       )
       expect(hasRecognizableBlocks).toBe(true)
@@ -125,9 +120,10 @@ describe('WorldGenerator', () => {
   describe('structure generation', () => {
     it('should generate trees in appropriate biomes', () => {
       const chunk = worldGenerator.generateChunk(0, 0)
-      
-      const treeBlocks = Array.from(chunk.blocks.entries())
-        .filter(([, blockType]) => ['wood', 'leaves'].includes(blockType))
+
+      const treeBlocks = Array.from(chunk.blocks.entries()).filter(([, blockType]) =>
+        ['wood', 'leaves'].includes(blockType)
+      )
 
       // Trees should have both wood and leaves
       const hasWood = treeBlocks.some(([, blockType]) => blockType === 'wood')
@@ -142,9 +138,10 @@ describe('WorldGenerator', () => {
 
     it('should generate ores in stone layers', () => {
       const chunk = worldGenerator.generateChunk(0, 0)
-      
-      const oreBlocks = Array.from(chunk.blocks.entries())
-        .filter(([, blockType]) => blockType.includes('_ore'))
+
+      const oreBlocks = Array.from(chunk.blocks.entries()).filter(([, blockType]) =>
+        blockType.includes('_ore')
+      )
 
       // Ores should be in stone layers (below surface)
       oreBlocks.forEach(([key, blockType]) => {
@@ -165,13 +162,17 @@ describe('WorldGenerator', () => {
       expect(chunk1.z).toBe(chunk2.z)
       expect(chunk1.generated).toBe(chunk2.generated)
       expect(chunk1.modified).toBe(chunk2.modified)
-      
+
       // Should have similar number of blocks (allowing for small variations)
       expect(Math.abs(chunk1.blocks.size - chunk2.blocks.size)).toBeLessThan(500)
-      
+
       // Check that key structural elements are the same
-      const chunk1Bedrock = Array.from(chunk1.blocks.entries()).filter(([, blockType]) => blockType === 'bedrock')
-      const chunk2Bedrock = Array.from(chunk2.blocks.entries()).filter(([, blockType]) => blockType === 'bedrock')
+      const chunk1Bedrock = Array.from(chunk1.blocks.entries()).filter(
+        ([, blockType]) => blockType === 'bedrock'
+      )
+      const chunk2Bedrock = Array.from(chunk2.blocks.entries()).filter(
+        ([, blockType]) => blockType === 'bedrock'
+      )
       expect(chunk1Bedrock.length).toBe(chunk2Bedrock.length)
     })
 
@@ -182,11 +183,11 @@ describe('WorldGenerator', () => {
       // Should have different coordinates
       expect(chunk1.x).not.toBe(chunk2.x)
       expect(chunk1.z).not.toBe(chunk2.z)
-      
+
       // Should have different block patterns
       const chunk1Blocks = Array.from(chunk1.blocks.entries())
       const chunk2Blocks = Array.from(chunk2.blocks.entries())
-      
+
       // At least some blocks should be different
       expect(chunk1Blocks).not.toEqual(chunk2Blocks)
     })
@@ -195,18 +196,18 @@ describe('WorldGenerator', () => {
   describe('chunk boundaries', () => {
     it('should generate chunks within correct boundaries', () => {
       const chunk = worldGenerator.generateChunk(0, 0)
-      
+
       // Check that all block coordinates are within chunk bounds
       const chunkSize = 16 // Default chunk size
       Array.from(chunk.blocks.keys()).forEach(key => {
         const [x, y, z] = key.split(',').map(Number)
-        
+
         // X and Z should be within chunk bounds
         expect(x).toBeGreaterThanOrEqual(0)
         expect(x).toBeLessThan(chunkSize)
         expect(z).toBeGreaterThanOrEqual(0)
         expect(z).toBeLessThan(chunkSize)
-        
+
         // Y should be within world height bounds
         expect(y).toBeGreaterThanOrEqual(0)
         expect(y).toBeLessThan(256) // Default world height

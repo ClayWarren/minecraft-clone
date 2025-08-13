@@ -1,5 +1,4 @@
 import { Chunk, WorldGenerationConfig, worldToChunk, getChunkKey } from '../types/world'
-import { BLOCK_TYPES, BlockType } from '../types/blocks'
 import * as fs from 'fs'
 import * as path from 'path'
 
@@ -42,7 +41,7 @@ export class WorldManager {
         generated: true,
         loaded: true,
         dirty: false,
-        entities: []
+        entities: [],
       }
       this.chunks.set(chunkKey, chunk)
       this.loadedChunks.add(chunkKey)
@@ -71,7 +70,7 @@ export class WorldManager {
         this.loadedChunks.clear()
         if (worldData.blocks) {
           worldData.blocks.forEach(([key, blockType]: [string, string]) => {
-            const [x, y, z] = key.split(',').map(Number)
+            const [x, _y, z] = key.split(',').map(Number)
             const chunkX = worldToChunk(x, this.chunkSize)
             const chunkZ = worldToChunk(z, this.chunkSize)
             const chunkKey = getChunkKey(chunkX, chunkZ)
@@ -84,7 +83,7 @@ export class WorldManager {
                 generated: true,
                 loaded: true,
                 dirty: false,
-                entities: []
+                entities: [],
               }
               this.chunks.set(chunkKey, chunk)
               this.loadedChunks.add(chunkKey)
@@ -113,11 +112,13 @@ export class WorldManager {
       if (blocksToSave.length > 0) {
         const worldData = {
           blocks: blocksToSave,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         }
         const worldPath = path.join(process.cwd(), 'world.json')
         fs.writeFileSync(worldPath, JSON.stringify(worldData))
-        console.log(`🌍 World saved successfully. Saved ${blocksToSave.length} blocks from dirty chunks.`)
+        console.log(
+          `🌍 World saved successfully. Saved ${blocksToSave.length} blocks from dirty chunks.`
+        )
       } else {
         console.log('🌍 No dirty chunks to save.')
       }

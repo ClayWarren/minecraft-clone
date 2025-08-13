@@ -1,4 +1,3 @@
-
 import { Player } from '../types/server'
 import { ItemStack } from '../types/items'
 
@@ -11,8 +10,15 @@ export class PlayerManager {
       { item: { id: 'dirt', name: 'Dirt', stackable: true, maxStackSize: 64 }, quantity: 64 },
       { item: { id: 'stone', name: 'Stone', stackable: true, maxStackSize: 64 }, quantity: 64 },
       { item: { id: 'wood', name: 'Wood', stackable: true, maxStackSize: 64 }, quantity: 32 },
-      { item: { id: 'bedrock', name: 'Bedrock', stackable: true, maxStackSize: 999 }, quantity: 999 },
-      null, null, null, null, null
+      {
+        item: { id: 'bedrock', name: 'Bedrock', stackable: true, maxStackSize: 999 },
+        quantity: 999,
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
     ]
     const player: Player = {
       id,
@@ -22,7 +28,7 @@ export class PlayerManager {
       health: 20,
       inventory,
       isFlying: false,
-      isGrounded: false
+      isGrounded: false,
     }
     this.addPlayer(player)
     return player

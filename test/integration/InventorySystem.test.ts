@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { WebSocket } from 'ws'
 import MinecraftServer from '../../server'
-import type { NetworkMessage, CraftingRequestMessage, ItemPickupMessage } from '../../src/types/server'
+import type {
+  NetworkMessage,
+  CraftingRequestMessage,
+  ItemPickupMessage,
+} from '../../src/types/server'
 
 describe('Inventory System Integration', () => {
   let server: MinecraftServer
@@ -10,7 +14,7 @@ describe('Inventory System Integration', () => {
 
   beforeEach(() => {
     server = new MinecraftServer()
-    
+
     // Create mock WebSocket
     mockWebSocket = {
       readyState: 1,
@@ -18,7 +22,7 @@ describe('Inventory System Integration', () => {
       close: vi.fn(),
       on: vi.fn(),
       addEventListener: vi.fn(),
-      removeEventListener: vi.fn()
+      removeEventListener: vi.fn(),
     }
 
     // Create mock player with inventory
@@ -38,14 +42,14 @@ describe('Inventory System Integration', () => {
         null,
         null,
         null,
-        null
+        null,
       ],
       isFlying: false,
       isGrounded: true,
       ws: mockWebSocket,
       velocity: { x: 0, y: 0, z: 0 },
       hunger: 20,
-      lastUpdate: Date.now()
+      lastUpdate: Date.now(),
     }
 
     // Add player to server
@@ -64,7 +68,7 @@ describe('Inventory System Integration', () => {
         id: 'coal',
         name: 'Coal',
         stackable: true,
-        maxStackSize: 64
+        maxStackSize: 64,
       }
 
       const message: ItemPickupMessage = {
@@ -72,9 +76,9 @@ describe('Inventory System Integration', () => {
         data: {
           playerId: player.id,
           item: itemToPickup,
-          quantity: 3
+          quantity: 3,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock network manager
@@ -93,7 +97,7 @@ describe('Inventory System Integration', () => {
         id: 'wood',
         name: 'Wood',
         stackable: true,
-        maxStackSize: 64
+        maxStackSize: 64,
       }
 
       const message: ItemPickupMessage = {
@@ -101,9 +105,9 @@ describe('Inventory System Integration', () => {
         data: {
           playerId: player.id,
           item: itemToPickup,
-          quantity: 5
+          quantity: 5,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock network manager
@@ -122,7 +126,7 @@ describe('Inventory System Integration', () => {
       for (let i = 0; i < player.inventory.length; i++) {
         player.inventory[i] = {
           item: { id: `item${i}`, name: `Item ${i}`, stackable: true, maxStackSize: 64 },
-          quantity: 64
+          quantity: 64,
         }
       }
 
@@ -130,7 +134,7 @@ describe('Inventory System Integration', () => {
         id: 'overflow_item',
         name: 'Overflow Item',
         stackable: true,
-        maxStackSize: 64
+        maxStackSize: 64,
       }
 
       const message: ItemPickupMessage = {
@@ -138,9 +142,9 @@ describe('Inventory System Integration', () => {
         data: {
           playerId: player.id,
           item: itemToPickup,
-          quantity: 10
+          quantity: 10,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock network manager
@@ -150,7 +154,9 @@ describe('Inventory System Integration', () => {
       server['handleMessage'](player.id, message)
 
       // Verify inventory is still full
-      const hasOverflowItem = player.inventory.some(slot => slot && slot.item.id === 'overflow_item')
+      const hasOverflowItem = player.inventory.some(
+        slot => slot && slot.item.id === 'overflow_item'
+      )
       expect(hasOverflowItem).toBe(false)
     })
   })
@@ -161,9 +167,9 @@ describe('Inventory System Integration', () => {
         type: 'crafting_request',
         data: {
           playerId: player.id,
-          recipeId: 'wooden_pickaxe'
+          recipeId: 'wooden_pickaxe',
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock network manager
@@ -185,9 +191,9 @@ describe('Inventory System Integration', () => {
         type: 'crafting_request',
         data: {
           playerId: player.id,
-          recipeId: 'wooden_pickaxe'
+          recipeId: 'wooden_pickaxe',
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock network manager
@@ -207,15 +213,18 @@ describe('Inventory System Integration', () => {
 
     it('should handle crafting with exact material requirements', () => {
       // Set exact amount of wood needed
-      player.inventory[0] = { item: { id: 'wood', name: 'Wood', stackable: true, maxStackSize: 64 }, quantity: 3 }
+      player.inventory[0] = {
+        item: { id: 'wood', name: 'Wood', stackable: true, maxStackSize: 64 },
+        quantity: 3,
+      }
 
       const craftingMessage: CraftingRequestMessage = {
         type: 'crafting_request',
         data: {
           playerId: player.id,
-          recipeId: 'wooden_pickaxe'
+          recipeId: 'wooden_pickaxe',
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock network manager
@@ -233,12 +242,20 @@ describe('Inventory System Integration', () => {
   describe('Inventory Management', () => {
     it('should handle item stacking correctly', () => {
       // Add items that should stack
-      const item1 = { item: { id: 'coal', name: 'Coal', stackable: true, maxStackSize: 64 }, quantity: 30 }
-      const item2 = { item: { id: 'coal', name: 'Coal', stackable: true, maxStackSize: 64 }, quantity: 40 }
+      const item1 = {
+        item: { id: 'coal', name: 'Coal', stackable: true, maxStackSize: 64 },
+        quantity: 30,
+      }
+      const item2 = {
+        item: { id: 'coal', name: 'Coal', stackable: true, maxStackSize: 64 },
+        quantity: 40,
+      }
 
       // Find empty slots
       const emptySlot1 = player.inventory.findIndex(slot => slot === null)
-      const emptySlot2 = player.inventory.findIndex((slot, index) => slot === null && index !== emptySlot1)
+      const emptySlot2 = player.inventory.findIndex(
+        (slot, index) => slot === null && index !== emptySlot1
+      )
 
       player.inventory[emptySlot1] = item1
       player.inventory[emptySlot2] = item2
@@ -259,7 +276,7 @@ describe('Inventory System Integration', () => {
         id: 'sword',
         name: 'Sword',
         stackable: false,
-        maxStackSize: 1
+        maxStackSize: 1,
       }
 
       const message: ItemPickupMessage = {
@@ -267,9 +284,9 @@ describe('Inventory System Integration', () => {
         data: {
           playerId: player.id,
           item: nonStackableItem,
-          quantity: 1
+          quantity: 1,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock network manager
@@ -286,7 +303,7 @@ describe('Inventory System Integration', () => {
     it('should handle inventory slot management', () => {
       // Test finding empty slots
       const emptySlots = player.inventory
-        .map((slot, index) => slot === null ? index : -1)
+        .map((slot, index) => (slot === null ? index : -1))
         .filter(index => index !== -1)
 
       expect(emptySlots.length).toBe(8) // Should have 8 empty slots initially (2 filled, 8 empty)
@@ -300,9 +317,9 @@ describe('Inventory System Integration', () => {
         type: 'hotbar_select',
         data: {
           playerId: player.id,
-          slotIndex: 0
+          slotIndex: 0,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock network manager
@@ -323,9 +340,9 @@ describe('Inventory System Integration', () => {
           playerId: player.id,
           fromSlot: 0,
           toSlot: 2,
-          quantity: 5
+          quantity: 5,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock network manager
@@ -344,15 +361,15 @@ describe('Inventory System Integration', () => {
     it('should handle tool durability loss', () => {
       // Add a tool with durability
       const tool = {
-        item: { 
-          id: 'wooden_pickaxe', 
-          name: 'Wooden Pickaxe', 
-          stackable: false, 
+        item: {
+          id: 'wooden_pickaxe',
+          name: 'Wooden Pickaxe',
+          stackable: false,
           maxStackSize: 1,
           durability: 59,
-          maxDurability: 60
+          maxDurability: 60,
         },
-        quantity: 1
+        quantity: 1,
       }
 
       const emptySlot = player.inventory.findIndex(slot => slot === null)
@@ -364,9 +381,9 @@ describe('Inventory System Integration', () => {
         data: {
           playerId: player.id,
           slotIndex: emptySlot,
-          targetBlock: 'stone'
+          targetBlock: 'stone',
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock network manager
@@ -383,15 +400,15 @@ describe('Inventory System Integration', () => {
     it('should break tools when durability reaches zero', () => {
       // Add a tool with low durability
       const tool = {
-        item: { 
-          id: 'wooden_pickaxe', 
-          name: 'Wooden Pickaxe', 
-          stackable: false, 
+        item: {
+          id: 'wooden_pickaxe',
+          name: 'Wooden Pickaxe',
+          stackable: false,
           maxStackSize: 1,
           durability: 1,
-          maxDurability: 60
+          maxDurability: 60,
         },
-        quantity: 1
+        quantity: 1,
       }
 
       const emptySlot = player.inventory.findIndex(slot => slot === null)
@@ -403,9 +420,9 @@ describe('Inventory System Integration', () => {
         data: {
           playerId: player.id,
           slotIndex: emptySlot,
-          targetBlock: 'stone'
+          targetBlock: 'stone',
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock network manager
@@ -427,9 +444,9 @@ describe('Inventory System Integration', () => {
         data: {
           playerId: player.id,
           item: { id: 'diamond', name: 'Diamond', stackable: true, maxStackSize: 64 },
-          quantity: 1
+          quantity: 1,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock network manager
@@ -448,7 +465,7 @@ describe('Inventory System Integration', () => {
       for (let i = 0; i < player.inventory.length; i++) {
         player.inventory[i] = {
           item: { id: `item${i}`, name: `Item ${i}`, stackable: true, maxStackSize: 64 },
-          quantity: 64
+          quantity: 64,
         }
       }
 
@@ -457,9 +474,9 @@ describe('Inventory System Integration', () => {
         data: {
           playerId: player.id,
           item: { id: 'overflow', name: 'Overflow', stackable: true, maxStackSize: 64 },
-          quantity: 1
+          quantity: 1,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock network manager

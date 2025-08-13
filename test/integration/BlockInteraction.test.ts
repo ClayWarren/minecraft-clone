@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { WebSocket } from 'ws'
 import MinecraftServer from '../../server'
-import type { NetworkMessage, BlockUpdateMessage, PlayerUpdateMessage } from '../../src/types/server'
+import type {
+  NetworkMessage,
+  BlockUpdateMessage,
+  PlayerUpdateMessage,
+} from '../../src/types/server'
 
 describe('Block Interaction Integration', () => {
   let server: MinecraftServer
@@ -12,7 +16,7 @@ describe('Block Interaction Integration', () => {
 
   beforeEach(() => {
     server = new MinecraftServer()
-    
+
     // Create mock WebSockets
     mockWebSocket1 = {
       readyState: 1,
@@ -20,16 +24,16 @@ describe('Block Interaction Integration', () => {
       close: vi.fn(),
       on: vi.fn(),
       addEventListener: vi.fn(),
-      removeEventListener: vi.fn()
+      removeEventListener: vi.fn(),
     }
-    
+
     mockWebSocket2 = {
       readyState: 1,
       send: vi.fn(),
       close: vi.fn(),
       on: vi.fn(),
       addEventListener: vi.fn(),
-      removeEventListener: vi.fn()
+      removeEventListener: vi.fn(),
     }
 
     // Create mock players
@@ -45,7 +49,7 @@ describe('Block Interaction Integration', () => {
       ws: mockWebSocket1,
       velocity: { x: 0, y: 0, z: 0 },
       hunger: 20,
-      lastUpdate: Date.now()
+      lastUpdate: Date.now(),
     }
 
     player2 = {
@@ -60,7 +64,7 @@ describe('Block Interaction Integration', () => {
       ws: mockWebSocket2,
       velocity: { x: 0, y: 0, z: 0 },
       hunger: 20,
-      lastUpdate: Date.now()
+      lastUpdate: Date.now(),
     }
 
     // Add players to server
@@ -83,10 +87,10 @@ describe('Block Interaction Integration', () => {
         type: 'block_update',
         data: {
           position: blockPosition,
-          blockType: blockType,
-          playerId: player1.id
+          blockType,
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock world service
@@ -96,7 +100,7 @@ describe('Block Interaction Integration', () => {
         x: 0,
         z: 0,
         generated: true,
-        modified: false
+        modified: false,
       }
       server['worldService']['getChunk'] = vi.fn().mockReturnValue(mockChunk)
       server['worldService']['getAllChunks'] = vi.fn().mockReturnValue(new Map())
@@ -118,10 +122,10 @@ describe('Block Interaction Integration', () => {
         type: 'block_update',
         data: {
           position: blockPosition,
-          blockType: blockType,
-          playerId: player1.id
+          blockType,
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock world service
@@ -131,7 +135,7 @@ describe('Block Interaction Integration', () => {
         x: 0,
         z: 0,
         generated: true,
-        modified: false
+        modified: false,
       }
       server['worldService']['getChunk'] = vi.fn().mockReturnValue(mockChunk)
       server['worldService']['getAllChunks'] = vi.fn().mockReturnValue(new Map())
@@ -154,10 +158,10 @@ describe('Block Interaction Integration', () => {
         type: 'block_update',
         data: {
           position: blockPosition,
-          blockType: blockType,
-          playerId: player1.id
+          blockType,
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock world service to return null (invalid position)
@@ -180,9 +184,9 @@ describe('Block Interaction Integration', () => {
         data: {
           position: blockPosition,
           blockType: 'air', // Destroying block
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock world service with existing block
@@ -192,7 +196,7 @@ describe('Block Interaction Integration', () => {
         x: 0,
         z: 0,
         generated: true,
-        modified: false
+        modified: false,
       }
       server['worldService']['getChunk'] = vi.fn().mockReturnValue(mockChunk)
       server['worldService']['getAllChunks'] = vi.fn().mockReturnValue(new Map())
@@ -213,9 +217,9 @@ describe('Block Interaction Integration', () => {
         data: {
           position: blockPosition,
           blockType: 'air',
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock world service
@@ -225,7 +229,7 @@ describe('Block Interaction Integration', () => {
         x: 0,
         z: 0,
         generated: true,
-        modified: false
+        modified: false,
       }
       server['worldService']['getChunk'] = vi.fn().mockReturnValue(mockChunk)
       server['worldService']['getAllChunks'] = vi.fn().mockReturnValue(new Map())
@@ -251,10 +255,10 @@ describe('Block Interaction Integration', () => {
         type: 'block_update',
         data: {
           position: blockPosition,
-          blockType: blockType,
-          playerId: player1.id
+          blockType,
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock world service
@@ -264,7 +268,7 @@ describe('Block Interaction Integration', () => {
         x: 0,
         z: 0,
         generated: true,
-        modified: false
+        modified: false,
       }
       server['worldService']['getChunk'] = vi.fn().mockReturnValue(mockChunk)
       server['worldService']['getAllChunks'] = vi.fn().mockReturnValue(new Map())
@@ -282,8 +286,8 @@ describe('Block Interaction Integration', () => {
           type: 'block_update',
           data: expect.objectContaining({
             position: blockPosition,
-            blockType: blockType
-          })
+            blockType,
+          }),
         })
       )
     })
@@ -297,9 +301,9 @@ describe('Block Interaction Integration', () => {
         data: {
           position: blockPosition,
           blockType: 'stone',
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       const message2: BlockUpdateMessage = {
@@ -307,9 +311,9 @@ describe('Block Interaction Integration', () => {
         data: {
           position: blockPosition,
           blockType: 'dirt',
-          playerId: player2.id
+          playerId: player2.id,
         },
-        timestamp: Date.now() + 1
+        timestamp: Date.now() + 1,
       }
 
       // Mock world service
@@ -319,7 +323,7 @@ describe('Block Interaction Integration', () => {
         x: 0,
         z: 0,
         generated: true,
-        modified: false
+        modified: false,
       }
       server['worldService']['getChunk'] = vi.fn().mockReturnValue(mockChunk)
       server['worldService']['getAllChunks'] = vi.fn().mockReturnValue(new Map())
@@ -342,9 +346,9 @@ describe('Block Interaction Integration', () => {
         data: {
           position: blockPosition,
           blockType: 'stone',
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock world service to return null initially (chunk not loaded)
@@ -370,9 +374,9 @@ describe('Block Interaction Integration', () => {
         data: {
           position: blockPosition,
           blockType: 'stone',
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock world service to return null (chunk not loaded)
@@ -400,9 +404,9 @@ describe('Block Interaction Integration', () => {
         data: {
           position: blockPosition,
           blockType: 'invalid_block_type',
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock world service
@@ -412,7 +416,7 @@ describe('Block Interaction Integration', () => {
         x: 0,
         z: 0,
         generated: true,
-        modified: false
+        modified: false,
       }
       server['worldService']['getChunk'] = vi.fn().mockReturnValue(mockChunk)
       server['worldService']['getAllChunks'] = vi.fn().mockReturnValue(new Map())
@@ -433,9 +437,9 @@ describe('Block Interaction Integration', () => {
         data: {
           position: blockPosition,
           blockType: 'stone',
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock world service to return null (out of bounds)

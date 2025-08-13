@@ -1,6 +1,5 @@
 import { NoiseGenerator } from './NoiseGenerator'
 import { BIOMES, BiomeData, Chunk, WorldGenerationConfig, getBlockKey } from '@/types/world'
-import { BLOCK_TYPES } from '@/types/blocks'
 
 export class WorldGenerator {
   private noise: NoiseGenerator
@@ -19,7 +18,7 @@ export class WorldGenerator {
       generated: false,
       loaded: true,
       dirty: true,
-      entities: []
+      entities: [],
     }
 
     // Generate terrain for each block in the chunk
@@ -39,7 +38,13 @@ export class WorldGenerator {
     return chunk
   }
 
-  private generateColumn(chunk: Chunk, worldX: number, worldZ: number, localX: number, localZ: number): void {
+  private generateColumn(
+    chunk: Chunk,
+    worldX: number,
+    worldZ: number,
+    localX: number,
+    localZ: number
+  ): void {
     // Get biome for this position
     const biomeId = this.noise.getBiome(worldX, worldZ, this.config.biomeScale)
     const biome = BIOMES[biomeId] || BIOMES.plains
@@ -57,7 +62,7 @@ export class WorldGenerator {
     for (let y = 1; y <= Math.min(terrainHeight - biome.stoneDepth, this.config.worldHeight); y++) {
       if (!this.isCave(worldX, y, worldZ)) {
         this.setBlock(chunk, localX, y, localZ, 'stone')
-        
+
         // Add ores
         this.generateOres(chunk, localX, y, localZ, worldX, worldZ)
       }
@@ -66,7 +71,7 @@ export class WorldGenerator {
     // Generate subsurface layer
     const subsurfaceStart = Math.max(1, terrainHeight - biome.stoneDepth + 1)
     const subsurfaceEnd = Math.max(subsurfaceStart, terrainHeight - 1)
-    
+
     for (let y = subsurfaceStart; y <= subsurfaceEnd && y <= this.config.worldHeight; y++) {
       if (!this.isCave(worldX, y, worldZ)) {
         this.setBlock(chunk, localX, y, localZ, biome.subsurfaceBlock)
@@ -77,12 +82,12 @@ export class WorldGenerator {
     if (terrainHeight >= seaLevel && terrainHeight <= this.config.worldHeight) {
       if (!this.isCave(worldX, terrainHeight, worldZ)) {
         let surfaceBlock = biome.surfaceBlock
-        
+
         // Snow on high elevations
         if (terrainHeight > biome.snowLevel) {
           surfaceBlock = 'snow'
         }
-        
+
         this.setBlock(chunk, localX, terrainHeight, localZ, surfaceBlock)
       }
     }
@@ -100,9 +105,16 @@ export class WorldGenerator {
     }
   }
 
-  private generateOres(chunk: Chunk, localX: number, y: number, localZ: number, worldX: number, worldZ: number): void {
+  private generateOres(
+    chunk: Chunk,
+    localX: number,
+    y: number,
+    localZ: number,
+    worldX: number,
+    worldZ: number
+  ): void {
     const oreNoise = this.noise.fbm3D(worldX * 0.1, y * 0.1, worldZ * 0.1, 3, 0.6, 2.0)
-    
+
     // Coal ore (common, higher levels)
     if (y > 5 && y < 60 && oreNoise > 0.7) {
       const coalChance = this.noise.noise2D(worldX * 0.2, worldZ * 0.2)
@@ -131,21 +143,35 @@ export class WorldGenerator {
     }
   }
 
-  private generateVegetation(chunk: Chunk, localX: number, y: number, localZ: number, worldX: number, worldZ: number, biome: BiomeData): void {
+  private generateVegetation(
+    chunk: Chunk,
+    localX: number,
+    y: number,
+    localZ: number,
+    worldX: number,
+    worldZ: number,
+    biome: BiomeData
+  ): void {
     const vegetationNoise = this.noise.noise2D(worldX * 0.1, worldZ * 0.1)
-    
+
     // Trees
-    if (vegetationNoise > (1 - biome.treeChance * 2)) {
+    if (vegetationNoise > 1 - biome.treeChance * 2) {
       this.generateTree(chunk, localX, y, localZ, biome)
     }
     // Grass
-    else if (vegetationNoise > (1 - biome.grassChance) && biome.grassChance > 0) {
+    else if (vegetationNoise > 1 - biome.grassChance && biome.grassChance > 0) {
       // TODO: Add grass blocks when we have them
       // this.setBlock(chunk, localX, y, localZ, 'tall_grass')
     }
   }
 
-  private generateTree(chunk: Chunk, localX: number, y: number, localZ: number, biome: BiomeData): void {
+  private generateTree(
+    chunk: Chunk,
+    localX: number,
+    y: number,
+    localZ: number,
+    _biome: BiomeData
+  ): void {
     const treeHeight = 4 + Math.floor(Math.random() * 3) // 4-6 blocks tall
 
     // Generate trunk
@@ -162,10 +188,14 @@ export class WorldGenerator {
         for (let dz = -1; dz <= 1; dz++) {
           const leafX = localX + dx
           const leafZ = localZ + dz
-          
+
           // Check bounds within chunk
-          if (leafX >= 0 && leafX < this.config.chunkSize && 
-              leafZ >= 0 && leafZ < this.config.chunkSize) {
+          if (
+            leafX >= 0 &&
+            leafX < this.config.chunkSize &&
+            leafZ >= 0 &&
+            leafZ < this.config.chunkSize
+          ) {
             // Don't replace the wood trunk
             if (!(dx === 0 && dz === 0)) {
               // TODO: Add leaves blocks when we have them
@@ -197,11 +227,17 @@ export class WorldGenerator {
     return this.noise.isCave(worldX, y, worldZ, this.config.caveScale)
   }
 
-  private setBlock(chunk: Chunk, localX: number, y: number, localZ: number, blockType: string): void {
+  private setBlock(
+    chunk: Chunk,
+    localX: number,
+    y: number,
+    localZ: number,
+    blockType: string
+  ): void {
     // Convert local coordinates to world coordinates
     const worldX = chunk.x * this.config.chunkSize + localX
     const worldZ = chunk.z * this.config.chunkSize + localZ
-    
+
     const key = getBlockKey(worldX, y, worldZ)
     chunk.blocks.set(key, blockType)
   }

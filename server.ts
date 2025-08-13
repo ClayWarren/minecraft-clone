@@ -1,4 +1,4 @@
-import { WebSocket, WebSocketServer } from 'ws';
+import { WebSocket } from 'ws'
 import { NetworkManager } from './src/server/NetworkManager'
 import { WorldService } from './src/server/WorldService'
 import { PlayerManager } from './src/player/PlayerManager'
@@ -8,13 +8,8 @@ import { WeatherService } from './src/server/WeatherService'
 import { PhysicsService } from './src/server/PhysicsService'
 import { WorldGenerator } from './src/server/WorldGenerator'
 import { DEFAULT_WORLD_CONFIG } from './src/server/constants'
-import * as fs from 'fs'
-import * as path from 'path'
 
-import type { 
-  Player, 
-  BiomeDefinition, 
-  Weather, 
+import type {
   NetworkMessage,
   PlayerUpdateMessage,
   BlockUpdateMessage,
@@ -22,12 +17,10 @@ import type {
   CraftingRequestMessage,
   CraftingResponseMessage,
   AttackMessage,
-  MobSpawnMessage,
   MobDespawnMessage,
   MobUpdateMessage,
   Chunk,
   ServerPlayer,
-  Mob
 } from './src/types/server'
 
 // Error classes
@@ -36,15 +29,6 @@ class CriticalNetworkError extends Error {
     super(message)
     this.name = 'CriticalNetworkError'
   }
-}
-
-// Utility functions
-const worldToChunk = (worldCoord: number, chunkSize: number): number => {
-  return Math.floor(worldCoord / chunkSize)
-}
-
-const getChunkKey = (chunkX: number, chunkZ: number): string => {
-  return `${chunkX},${chunkZ}`
 }
 
 class MinecraftServer {
@@ -56,10 +40,10 @@ class MinecraftServer {
   private weatherService: WeatherService
   private physicsService: PhysicsService
   private worldGenerator: WorldGenerator
-  
-  private timeOfDay: number = 6000 // Start at noon
+
+  private timeOfDay = 6000 // Start at noon
   private startTime: number = Date.now()
-  private dayLength: number = 24000 // 20 minutes in milliseconds
+  private dayLength = 24000 // 20 minutes in milliseconds
   private saveInterval: NodeJS.Timeout | null = null
   private gameLoopInterval: NodeJS.Timeout | null = null
   private physicsLoopInterval: NodeJS.Timeout | null = null
@@ -74,7 +58,7 @@ class MinecraftServer {
     this.craftingService = new CraftingService()
     this.weatherService = new WeatherService()
     this.physicsService = new PhysicsService()
-    
+
     this.init()
   }
 
@@ -119,7 +103,7 @@ class MinecraftServer {
 
   private handlePlayerConnect(ws: WebSocket): void {
     try {
-      const playerId = this.generatePlayerId();
+      const playerId = this.generatePlayerId()
       const player: ServerPlayer = {
         id: playerId,
         username: `Player${playerId.slice(0, 4)}`,
@@ -133,77 +117,76 @@ class MinecraftServer {
         velocity: { x: 0, y: 0, z: 0 },
         hunger: 20,
         lastUpdate: Date.now(),
-        pendingMessages: []
-      };
+        pendingMessages: [],
+      }
 
-      this.playerManager.addPlayer(player);
+      this.playerManager.addPlayer(player)
 
       // Send initial game state with retry
-      this.sendInitialGameState(player);
+      this.sendInitialGameState(player)
 
       // Set up message handler with error handling and message ordering
       const messageHandler = (data: string) => {
         try {
-          const message = JSON.parse(data) as NetworkMessage;
-          
+          const message = JSON.parse(data) as NetworkMessage
+
           // Add timestamp if not present
           if (!message.timestamp) {
-            message.timestamp = Date.now();
+            message.timestamp = Date.now()
           }
-          
+
           // Process message in next tick to prevent blocking
           process.nextTick(() => {
             try {
-              this.handleMessage(playerId, message);
+              this.handleMessage(playerId, message)
             } catch (error) {
-              console.error(`Error processing message from ${playerId}:`, error);
+              console.error(`Error processing message from ${playerId}:`, error)
               // Send error back to client
               this.networkManager.send(ws, {
                 type: 'error',
                 data: { message: 'Error processing message' },
-                timestamp: Date.now()
-              });
+                timestamp: Date.now(),
+              })
             }
-          });
+          })
         } catch (error) {
-          console.error('Error parsing message:', error);
+          console.error('Error parsing message:', error)
           this.networkManager.send(ws, {
             type: 'error',
             data: { message: 'Invalid message format' },
-            timestamp: Date.now()
-          });
+            timestamp: Date.now(),
+          })
         }
-      };
+      }
 
       // Store the bound handler for later cleanup
-      player.messageHandler = messageHandler.bind(this);
-      ws.on('message', player.messageHandler);
+      player.messageHandler = messageHandler.bind(this)
+      ws.on('message', player.messageHandler)
 
       // Handle disconnection with cleanup
       const closeHandler = () => {
-        console.log(`Player ${playerId} disconnected`);
-        this.handlePlayerDisconnect(playerId);
-      };
-      
-      player.closeHandler = closeHandler.bind(this);
-      ws.on('close', player.closeHandler);
+        console.log(`Player ${playerId} disconnected`)
+        this.handlePlayerDisconnect(playerId)
+      }
+
+      player.closeHandler = closeHandler.bind(this)
+      ws.on('close', player.closeHandler)
 
       // Handle connection errors
       const errorHandler = (error: Error) => {
-        console.error(`WebSocket error for player ${playerId}:`, error);
-        this.handlePlayerDisconnect(playerId);
-      };
-      
-      player.errorHandler = errorHandler.bind(this);
-      ws.on('error', player.errorHandler);
-      
-      console.log(`Player ${playerId} connected`);
-      
+        console.error(`WebSocket error for player ${playerId}:`, error)
+        this.handlePlayerDisconnect(playerId)
+      }
+
+      player.errorHandler = errorHandler.bind(this)
+      ws.on('error', player.errorHandler)
+
+      console.log(`Player ${playerId} connected`)
     } catch (error) {
-      console.error('Error in player connection:', error);
+      console.error('Error in player connection:', error)
       try {
-        ws.close(1011, 'Server error during connection');
-      } catch (e) {
+        ws.close(1011, 'Server error during connection')
+      } catch (_e) {
         // Ignore errors during close
       }
     }
@@ -214,76 +197,82 @@ class MinecraftServer {
   }
 
   private handleMessage(playerId: string, message: NetworkMessage): void {
-    const player = this.playerManager.getPlayer(playerId);
+    const player = this.playerManager.getPlayer(playerId)
     if (!player) {
-      console.warn(`Received message from unknown player: ${playerId}`);
-      return;
+      console.warn(`Received message from unknown player: ${playerId}`)
+      return
     }
 
     // Update last activity timestamp for timeout handling
-    player.lastActivity = Date.now();
+    player.lastActivity = Date.now()
 
     try {
       // Handle message based on type
       switch (message.type) {
         case 'player_update':
-          this.handlePlayerUpdate(player as ServerPlayer, message as PlayerUpdateMessage);
-          break;
+          this.handlePlayerUpdate(player as ServerPlayer, message as PlayerUpdateMessage)
+          break
         case 'block_update':
-          this.handleBlockUpdate(player as ServerPlayer, message as BlockUpdateMessage);
-          break;
+          this.handleBlockUpdate(player as ServerPlayer, message as BlockUpdateMessage)
+          break
         case 'chat_message':
-          this.handleChatMessage(player as ServerPlayer, message);
-          break;
+          this.handleChatMessage(player as ServerPlayer, message)
+          break
         case 'crafting_request':
-          this.handleCraftingRequest(player as ServerPlayer, message as CraftingRequestMessage);
-          break;
+          this.handleCraftingRequest(player as ServerPlayer, message as CraftingRequestMessage)
+          break
         case 'inventory_move':
-          this.handleInventoryMove(player as ServerPlayer, message);
-          break;
+          this.handleInventoryMove(player as ServerPlayer, message)
+          break
         case 'attack':
-          this.handleAttack(player as ServerPlayer, message as AttackMessage);
-          break;
+          this.handleAttack(player as ServerPlayer, message as AttackMessage)
+          break
         case 'chunk_request':
-          this.handleChunkRequest(playerId, (message.data as any).chunkX, (message.data as any).chunkZ);
-          break;
+          this.handleChunkRequest(
+            playerId,
+            (message.data as { chunkX: number; chunkZ: number }).chunkX,
+            (message.data as { chunkX: number; chunkZ: number }).chunkZ
+          )
+          break
         case 'ping':
           // Respond to ping with pong
           this.networkManager.send(player.ws, {
             type: 'pong',
             data: { timestamp: message.timestamp },
-            timestamp: Date.now()
-          });
-          break;
-        default:
-          console.warn(`Unknown message type from ${playerId}: ${(message as any).type}`);
+            timestamp: Date.now(),
+          })
+          break
+        default: {
+          const unknownMessage = message as { type: string }
+          console.warn(`Unknown message type from ${playerId}: ${unknownMessage.type}`)
           // Throw error for truly invalid message types to trigger error handling
-          if ((message as any).type === 'invalid_type') {
-            throw new Error(`Invalid message type: ${(message as any).type}`)
+          if (unknownMessage.type === 'invalid_type') {
+            throw new Error(`Invalid message type: ${unknownMessage.type}`)
           }
           this.networkManager.send(player.ws, {
             type: 'error',
             data: { message: 'Unknown message type' },
-            timestamp: Date.now()
-          });
+            timestamp: Date.now(),
+          })
+        }
       }
     } catch (error) {
-      console.error('Error processing message:', error);
-      
+      console.error('Error processing message:', error)
+
       // Send error response to client
       this.networkManager.send(player.ws, {
         type: 'error',
-        data: { 
+        data: {
           message: 'Error processing message',
-          originalType: message.type 
+          originalType: message.type,
         },
-        timestamp: Date.now()
-      });
-      
+        timestamp: Date.now(),
+      })
+
       // If it's a critical error, consider disconnecting the player
       if (error instanceof CriticalNetworkError) {
-        console.warn(`Disconnecting ${playerId} due to critical error`);
-        this.handlePlayerDisconnect(playerId);
+        console.warn(`Disconnecting ${playerId} due to critical error`)
+        this.handlePlayerDisconnect(playerId)
       }
     }
   }
@@ -299,7 +288,8 @@ class MinecraftServer {
 
   private handleBlockUpdate(player: ServerPlayer, message: BlockUpdateMessage): void {
     // Check if player is still connected
-    if (!player.ws || player.ws.readyState !== 1) { // 1 = WebSocket.OPEN
+    if (!player.ws || player.ws.readyState !== 1) {
+      // 1 = WebSocket.OPEN
       console.warn(`Ignoring block update from disconnected player: ${player.id}`)
       return
     }
@@ -344,28 +334,28 @@ class MinecraftServer {
 
   private handleCraftingRequest(player: ServerPlayer, message: CraftingRequestMessage): void {
     const result = this.craftingService.craftItem(player, message.data.recipeId)
-    
+
     this.sendToPlayer(player.id, {
       type: 'crafting_response',
       data: result,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     } as CraftingResponseMessage)
   }
 
   private handleAttack(player: ServerPlayer, message: AttackMessage): void {
     const result = this.mobService.handleAttack(player, message.data.targetId, message.data.damage)
-    
+
     if (result.mobDied) {
       this.broadcast({
         type: 'mob_despawn',
         data: { mobId: message.data.targetId },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       } as MobDespawnMessage)
     } else if (result.mobUpdated) {
       this.broadcast({
         type: 'mob_update',
         data: result.mob,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       } as MobUpdateMessage)
     }
 
@@ -375,20 +365,20 @@ class MinecraftServer {
         type: 'player_update',
         data: {
           playerId: player.id,
-          inventory: player.inventory
+          inventory: player.inventory,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       } as PlayerUpdateMessage)
     }
   }
 
   private generateChunk(chunkX: number, chunkZ: number): void {
     const chunkKey = `${chunkX},${chunkZ}`
-    
+
     // Use the WorldGenerator to generate the chunk
     const generatedChunk: Chunk = this.worldGenerator.generateChunk(chunkX, chunkZ)
     generatedChunk.dirty = false // Mark as clean initially
-    
+
     // Add generated chunk to the world service
     this.worldService.getAllChunks().set(chunkKey, generatedChunk)
     console.log(`🌍 Generated and loaded chunk: ${chunkKey}`)
@@ -414,7 +404,7 @@ class MinecraftServer {
     const message: ChunkDataMessage = {
       type: 'chunk_data',
       data: { chunkX, chunkZ, blocks },
-      timestamp: Date.now()
+      timestamp: Date.now(),
     }
 
     this.sendToPlayer(playerId, message)
@@ -425,19 +415,19 @@ class MinecraftServer {
     this.sendToPlayer(player.id, {
       type: 'time_update',
       data: { timeOfDay: this.timeOfDay },
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
 
     this.sendToPlayer(player.id, {
       type: 'weather_update',
       data: this.weatherService.getCurrentWeather(),
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
 
     // Send nearby chunks
     const chunkX = Math.floor(player.position.x / DEFAULT_WORLD_CONFIG.chunkSize)
     const chunkZ = Math.floor(player.position.z / DEFAULT_WORLD_CONFIG.chunkSize)
-    
+
     for (let x = chunkX - 2; x <= chunkX + 2; x++) {
       for (let z = chunkZ - 2; z <= chunkZ + 2; z++) {
         this.handleChunkRequest(player.id, x, z)
@@ -447,39 +437,38 @@ class MinecraftServer {
 
   private handlePlayerDisconnect(playerId: string): void {
     try {
-      const player = this.playerManager.getPlayer(playerId);
-      if (!player) return;
-      
+      const player = this.playerManager.getPlayer(playerId)
+      if (!player) return
+
       // Clean up WebSocket event listeners
       if (player.ws) {
         try {
           if (player.messageHandler) {
-            player.ws.off('message', player.messageHandler);
+            player.ws.off('message', player.messageHandler)
           }
           if (player.closeHandler) {
-            player.ws.off('close', player.closeHandler);
+            player.ws.off('close', player.closeHandler)
           }
           if (player.errorHandler) {
-            player.ws.off('error', player.errorHandler);
+            player.ws.off('error', player.errorHandler)
           }
         } catch (error) {
-          console.error('Error cleaning up WebSocket handlers:', error);
+          console.error('Error cleaning up WebSocket handlers:', error)
         }
       }
-      
+
       // Save player data
-      this.savePlayerData(playerId);
-      
+      this.savePlayerData(playerId)
+
       // Remove player from game state
-      this.playerManager.removePlayer(playerId);
-      
+      this.playerManager.removePlayer(playerId)
+
       // Notify other players with retry
-      this.broadcastPlayerList();
-      
-      console.log(`Player ${playerId} cleanup complete`);
-      
+      this.broadcastPlayerList()
+
+      console.log(`Player ${playerId} cleanup complete`)
     } catch (error) {
-      console.error(`Error during disconnect for player ${playerId}:`, error);
+      console.error(`Error during disconnect for player ${playerId}:`, error)
     }
   }
 
@@ -505,7 +494,10 @@ class MinecraftServer {
       this.updateTime()
       this.updateWeather()
       this.updatePlayerHungerAndHealth()
-      this.mobService.spawnMobs(this.playerManager.getAllPlayers(), this.worldService.getAllChunks())
+      this.mobService.spawnMobs(
+        this.playerManager.getAllPlayers(),
+        this.worldService.getAllChunks()
+      )
       this.mobService.updateMobsAI(this.worldService)
     }, 1000) // Update every second
   }
@@ -537,19 +529,16 @@ class MinecraftServer {
           rotation: sPlayer.rotation,
           health: sPlayer.health,
           hunger: sPlayer.hunger,
-          inventory: sPlayer.inventory
+          inventory: sPlayer.inventory,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       } as PlayerUpdateMessage)
     })
   }
 
   private startPhysicsLoop(): void {
     this.physicsLoopInterval = setInterval(() => {
-      this.physicsService.updatePlayerPhysics(
-        this.playerManager.getAllPlayers(),
-        this.worldService
-      )
+      this.physicsService.updatePlayerPhysics(this.playerManager.getAllPlayers(), this.worldService)
     }, 50) // 20 TPS
   }
 
@@ -561,13 +550,13 @@ class MinecraftServer {
 
   private updateTime(): void {
     const elapsed = Date.now() - this.startTime
-    this.timeOfDay = (elapsed % this.dayLength) / this.dayLength * 24000
+    this.timeOfDay = ((elapsed % this.dayLength) / this.dayLength) * 24000
 
     // Broadcast time update
     this.broadcast({
       type: 'time_update',
       data: { timeOfDay: this.timeOfDay },
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
@@ -577,7 +566,7 @@ class MinecraftServer {
       this.broadcast({
         type: 'weather_update',
         data: weatherUpdate.weather,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       })
     }
   }
@@ -585,12 +574,13 @@ class MinecraftServer {
   // Missing methods that are called in tests
   private handleChatMessage(player: ServerPlayer, message: NetworkMessage): void {
     // TODO: Implement chat message handling
-    console.log(`Chat from ${player.id}: ${(message.data as any).message}`)
+    console.log(`Chat from ${player.id}: ${(message.data as { message: string }).message}`)
   }
 
-  private handleInventoryMove(player: ServerPlayer, message: NetworkMessage): void {
+  private handleInventoryMove(player: ServerPlayer, _message: NetworkMessage): void {
     // Check if player is still connected
-    if (!player.ws || player.ws.readyState !== 1) { // 1 = WebSocket.OPEN
+    if (!player.ws || player.ws.readyState !== 1) {
+      // 1 = WebSocket.OPEN
       console.warn(`Ignoring inventory move from disconnected player: ${player.id}`)
       // Trigger cleanup for disconnected player
       this.handlePlayerDisconnect(player.id)
@@ -611,13 +601,13 @@ class MinecraftServer {
     const playerList = this.playerManager.getAllPlayers().map(p => ({
       id: p.id,
       username: (p as ServerPlayer).username,
-      position: p.position
+      position: p.position,
     }))
-    
+
     this.broadcast({
       type: 'player_list',
       data: { players: playerList },
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 }

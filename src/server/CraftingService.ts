@@ -1,4 +1,4 @@
-import type { Player, ServerPlayer } from '../types/server'
+import type { ServerPlayer } from '../types/server'
 
 interface CraftingRecipe {
   id: string
@@ -15,56 +15,56 @@ interface CraftingResult {
 
 export class CraftingService {
   private craftingRecipes: Record<string, CraftingRecipe> = {
-    'wooden_pickaxe': {
+    wooden_pickaxe: {
       id: 'wooden_pickaxe',
-      ingredients: { 'wood': 3, 'stick': 2 },
-      output: { 'wooden_pickaxe': 1 }
+      ingredients: { wood: 3, stick: 2 },
+      output: { wooden_pickaxe: 1 },
     },
-    'stone_pickaxe': {
+    stone_pickaxe: {
       id: 'stone_pickaxe',
-      ingredients: { 'cobblestone': 3, 'stick': 2 },
-      output: { 'stone_pickaxe': 1 }
+      ingredients: { cobblestone: 3, stick: 2 },
+      output: { stone_pickaxe: 1 },
     },
-    'iron_pickaxe': {
+    iron_pickaxe: {
       id: 'iron_pickaxe',
-      ingredients: { 'iron_ingot': 3, 'stick': 2 },
-      output: { 'iron_pickaxe': 1 }
+      ingredients: { iron_ingot: 3, stick: 2 },
+      output: { iron_pickaxe: 1 },
     },
-    'wooden_sword': {
+    wooden_sword: {
       id: 'wooden_sword',
-      ingredients: { 'wood': 2, 'stick': 1 },
-      output: { 'wooden_sword': 1 }
+      ingredients: { wood: 2, stick: 1 },
+      output: { wooden_sword: 1 },
     },
-    'stone_sword': {
+    stone_sword: {
       id: 'stone_sword',
-      ingredients: { 'cobblestone': 2, 'stick': 1 },
-      output: { 'stone_sword': 1 }
+      ingredients: { cobblestone: 2, stick: 1 },
+      output: { stone_sword: 1 },
     },
-    'iron_sword': {
+    iron_sword: {
       id: 'iron_sword',
-      ingredients: { 'iron_ingot': 2, 'stick': 1 },
-      output: { 'iron_sword': 1 }
+      ingredients: { iron_ingot: 2, stick: 1 },
+      output: { iron_sword: 1 },
     },
-    'stick': {
+    stick: {
       id: 'stick',
-      ingredients: { 'wood': 2 },
-      output: { 'stick': 4 }
+      ingredients: { wood: 2 },
+      output: { stick: 4 },
     },
-    'torch': {
+    torch: {
       id: 'torch',
-      ingredients: { 'coal': 1, 'stick': 1 },
-      output: { 'torch': 4 }
+      ingredients: { coal: 1, stick: 1 },
+      output: { torch: 4 },
     },
-    'furnace': {
+    furnace: {
       id: 'furnace',
-      ingredients: { 'cobblestone': 8 },
-      output: { 'furnace': 1 }
+      ingredients: { cobblestone: 8 },
+      output: { furnace: 1 },
     },
-    'chest': {
+    chest: {
       id: 'chest',
-      ingredients: { 'wood': 8 },
-      output: { 'chest': 1 }
-    }
+      ingredients: { wood: 8 },
+      output: { chest: 1 },
+    },
   }
 
   public craftItem(player: ServerPlayer, recipeId: string): CraftingResult {
@@ -73,7 +73,7 @@ export class CraftingService {
     if (!recipe) {
       return {
         success: false,
-        message: 'Recipe not found.'
+        message: 'Recipe not found.',
       }
     }
 
@@ -88,7 +88,7 @@ export class CraftingService {
       if (playerAmount < requiredAmount) {
         return {
           success: false,
-          message: `Not enough ${ingredient}. Need ${requiredAmount}, have ${playerAmount}.`
+          message: `Not enough ${ingredient}. Need ${requiredAmount}, have ${playerAmount}.`,
         }
       }
     }
@@ -126,24 +126,24 @@ export class CraftingService {
       if (!added) {
         const emptyIdx = player.inventory.findIndex(s => s === null)
         if (emptyIdx !== -1) {
-          player.inventory[emptyIdx] = { 
-            item: { id: outputItem, name: outputItem, stackable: true, maxStackSize: 64 }, 
-            quantity: outputAmount 
+          player.inventory[emptyIdx] = {
+            item: { id: outputItem, name: outputItem, stackable: true, maxStackSize: 64 },
+            quantity: outputAmount,
           }
         }
       }
-      
+
       console.log(`Player ${player.id} crafted ${outputAmount} ${outputItem}.`)
-      
+
       return {
         success: true,
-        craftedItem: { id: outputItem, quantity: outputAmount }
+        craftedItem: { id: outputItem, quantity: outputAmount },
       }
     }
 
     return {
       success: false,
-      message: 'Failed to craft item.'
+      message: 'Failed to craft item.',
     }
   }
 

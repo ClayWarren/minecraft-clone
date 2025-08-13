@@ -16,7 +16,7 @@ describe('Network Failure Scenarios', () => {
     on: vi.fn(),
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
-    terminate: vi.fn()
+    terminate: vi.fn(),
   })
 
   beforeEach(() => {
@@ -36,7 +36,7 @@ describe('Network Failure Scenarios', () => {
       ws: mockWebSocket,
       velocity: { x: 0, y: 0, z: 0 },
       hunger: 20,
-      lastUpdate: Date.now()
+      lastUpdate: Date.now(),
     }
 
     // Add player to server
@@ -60,9 +60,9 @@ describe('Network Failure Scenarios', () => {
         data: {
           position: blockPosition,
           blockType,
-          playerId: player.id
+          playerId: player.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock world service
@@ -72,14 +72,14 @@ describe('Network Failure Scenarios', () => {
         x: 0,
         z: 0,
         generated: true,
-        modified: false
+        modified: false,
       }
       server['worldService']['getChunk'] = vi.fn().mockReturnValue(mockChunk)
       server['worldService']['getAllChunks'] = vi.fn().mockReturnValue(new Map())
 
       // Simulate disconnection during block placement
       mockWebSocket.readyState = WebSocket.CLOSED
-      
+
       // Handle block placement after disconnection
       expect(() => {
         server['handleMessage'](player.id, placeMessage)
@@ -97,14 +97,14 @@ describe('Network Failure Scenarios', () => {
           playerId: player.id,
           fromSlot: 0,
           toSlot: 1,
-          quantity: 5
+          quantity: 5,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Simulate disconnection during inventory operation
       mockWebSocket.readyState = WebSocket.CLOSED
-      
+
       // Handle inventory operation after disconnection
       expect(() => {
         server['handleMessage'](player.id, inventoryMessage)
@@ -123,9 +123,9 @@ describe('Network Failure Scenarios', () => {
         data: {
           position: { x: 1, y: 64, z: 1 },
           blockType: 'dirt',
-          playerId: player.id
+          playerId: player.id,
         },
-        timestamp: Date.now() + 1000 // Later timestamp
+        timestamp: Date.now() + 1000, // Later timestamp
       }
 
       const block2: BlockUpdateMessage = {
@@ -133,9 +133,9 @@ describe('Network Failure Scenarios', () => {
         data: {
           position: { x: 1, y: 64, z: 1 }, // Same position
           blockType: 'stone',
-          playerId: player.id
+          playerId: player.id,
         },
-        timestamp: Date.now() // Earlier timestamp
+        timestamp: Date.now(), // Earlier timestamp
       }
 
       // Mock world service
@@ -145,7 +145,7 @@ describe('Network Failure Scenarios', () => {
         x: 0,
         z: 0,
         generated: true,
-        modified: false
+        modified: false,
       }
       server['worldService']['getChunk'] = vi.fn().mockReturnValue(mockChunk)
       server['worldService']['getAllChunks'] = vi.fn().mockReturnValue(new Map())
@@ -154,7 +154,7 @@ describe('Network Failure Scenarios', () => {
       server['handleMessage'](player.id, block1)
       server['handleMessage'](player.id, block2)
 
-      // Verify the last processed update (block2) took precedence 
+      // Verify the last processed update (block2) took precedence
       // (since we don't implement timestamp-based ordering yet)
       expect(mockChunk.blocks.get('1,64,1')).toBe('stone')
     })
@@ -165,11 +165,11 @@ describe('Network Failure Scenarios', () => {
       const malformedMessage = {
         type: 'invalid_type',
         data: { invalid: 'data' },
-        timestamp: 'not-a-timestamp'
+        timestamp: 'not-a-timestamp',
       }
 
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      
+
       // Handle malformed message
       expect(() => {
         server['handleMessage'](player.id, malformedMessage as any)
@@ -182,7 +182,7 @@ describe('Network Failure Scenarios', () => {
     it('should handle rapid reconnection attempts', () => {
       const connectSpy = vi.spyOn(server as any, 'handlePlayerConnect')
       const disconnectSpy = vi.spyOn(server as any, 'handlePlayerDisconnect')
-      
+
       // Simulate rapid connect/disconnect
       for (let i = 0; i < 5; i++) {
         const ws = createMockWebSocket()
@@ -194,7 +194,7 @@ describe('Network Failure Scenarios', () => {
       // Verify no errors occurred and handlers were called correctly
       expect(connectSpy).toHaveBeenCalledTimes(5)
       expect(disconnectSpy).toHaveBeenCalledTimes(5)
-      
+
       // Clean up
       connectSpy.mockRestore()
       disconnectSpy.mockRestore()

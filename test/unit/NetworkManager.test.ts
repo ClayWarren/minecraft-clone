@@ -9,14 +9,14 @@ describe('NetworkManager', () => {
 
   beforeEach(() => {
     mockConnectionHandler = vi.fn()
-    
+
     // Mock WebSocket
     mockWebSocket = {
       send: vi.fn(),
       readyState: 1, // OPEN
       close: vi.fn(),
       on: vi.fn(),
-      off: vi.fn()
+      off: vi.fn(),
     }
   })
 
@@ -35,7 +35,7 @@ describe('NetworkManager', () => {
       const message = {
         type: 'test_message',
         data: { test: 'data' },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       NetworkManager.prototype.send = vi.fn()
@@ -49,7 +49,7 @@ describe('NetworkManager', () => {
       const message = {
         type: 'test_message',
         data: { test: 'data' },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       mockWebSocket.send = vi.fn().mockImplementation(() => {
@@ -57,7 +57,7 @@ describe('NetworkManager', () => {
       })
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      
+
       NetworkManager.prototype.send = vi.fn().mockImplementation(() => {
         try {
           mockWebSocket.send(JSON.stringify(message))
@@ -78,13 +78,13 @@ describe('NetworkManager', () => {
     it('should broadcast message to multiple players', () => {
       const players = [
         { id: 'player1', ws: { ...mockWebSocket, send: vi.fn() } },
-        { id: 'player2', ws: { ...mockWebSocket, send: vi.fn() } }
+        { id: 'player2', ws: { ...mockWebSocket, send: vi.fn() } },
       ]
 
       const message = {
         type: 'broadcast_message',
         data: { broadcast: 'data' },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       NetworkManager.prototype.broadcast = vi.fn()
@@ -97,27 +97,31 @@ describe('NetworkManager', () => {
     it('should broadcast to others excluding specific player', () => {
       const players = [
         { id: 'player1', ws: { ...mockWebSocket, send: vi.fn() } },
-        { id: 'player2', ws: { ...mockWebSocket, send: vi.fn() } }
+        { id: 'player2', ws: { ...mockWebSocket, send: vi.fn() } },
       ]
 
       const message = {
         type: 'broadcast_message',
         data: { broadcast: 'data' },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       NetworkManager.prototype.broadcastToOthers = vi.fn()
       const networkManager = new NetworkManager(0, mockConnectionHandler)
       networkManager.broadcastToOthers(players as any, 'player1', message)
 
-      expect(NetworkManager.prototype.broadcastToOthers).toHaveBeenCalledWith(players, 'player1', message)
+      expect(NetworkManager.prototype.broadcastToOthers).toHaveBeenCalledWith(
+        players,
+        'player1',
+        message
+      )
     })
   })
 
   describe('Connection Handling', () => {
     it('should handle new connections', () => {
       const networkManager = new NetworkManager(0, mockConnectionHandler)
-      
+
       // Since we can't easily test the actual server connection in unit tests,
       // we verify the connection handler was provided
       expect(mockConnectionHandler).toBeDefined()
@@ -125,7 +129,7 @@ describe('NetworkManager', () => {
 
     it('should cleanup properly', () => {
       const networkManager = new NetworkManager(0, mockConnectionHandler)
-      
+
       expect(() => {
         networkManager.cleanup()
       }).not.toThrow()
@@ -136,13 +140,13 @@ describe('NetworkManager', () => {
     it('should handle disconnected WebSocket gracefully', () => {
       const disconnectedSocket = {
         ...mockWebSocket,
-        readyState: 3 // CLOSED
+        readyState: 3, // CLOSED
       }
 
       const message = {
         type: 'test_message',
         data: { test: 'data' },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       NetworkManager.prototype.send = vi.fn().mockImplementation((ws, msg) => {
@@ -152,7 +156,7 @@ describe('NetworkManager', () => {
       })
 
       const networkManager = new NetworkManager(0, mockConnectionHandler)
-      
+
       expect(() => {
         networkManager.send(disconnectedSocket, message)
       }).not.toThrow()

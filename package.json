@@ -14,21 +14,46 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/ test/ server.ts",
+    "lint:fix": "eslint src/ test/ server.ts --fix",
+    "format": "prettier --write src/ test/ server.ts *.json *.md",
+    "format:check": "prettier --check src/ test/ server.ts *.json *.md",
+    "check": "npm run lint && npm run format:check && npm run test:run",
+    "fix": "npm run lint:fix && npm run format",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@types/eslint__js": "^8.42.3",
     "@types/node": "^20.0.0",
     "@types/three": "^0.179.0",
     "@types/ws": "^8.5.0",
     "@vitest/ui": "^3.2.4",
     "concurrently": "^8.2.2",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
+    "prettier": "^3.6.2",
     "tsx": "^4.0.0",
     "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.1",
     "vite": "^7.1.2",
     "vitest": "^3.2.4"
   },
   "dependencies": {
     "three": "^0.179.1",
     "ws": "^8.18.3"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }

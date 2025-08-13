@@ -8,7 +8,7 @@ describe('CraftingService', () => {
 
   beforeEach(() => {
     craftingService = new CraftingService()
-    
+
     // Create a mock player with inventory
     mockPlayer = {
       id: 'test-player',
@@ -21,14 +21,14 @@ describe('CraftingService', () => {
         { item: { id: 'stick', name: 'Stick', stackable: true, maxStackSize: 64 }, quantity: 5 },
         null,
         null,
-        null
+        null,
       ],
       isFlying: false,
       isGrounded: true,
       ws: {} as any,
       velocity: { x: 0, y: 0, z: 0 },
       hunger: 20,
-      lastUpdate: Date.now()
+      lastUpdate: Date.now(),
     }
   })
 
@@ -38,11 +38,11 @@ describe('CraftingService', () => {
 
       expect(result.success).toBe(true)
       expect(result.craftedItem).toEqual({ id: 'wooden_pickaxe', quantity: 1 })
-      
+
       // Check that ingredients were consumed
       expect(mockPlayer.inventory[0]?.quantity).toBe(7) // 10 - 3 = 7 wood
       expect(mockPlayer.inventory[1]?.quantity).toBe(3) // 5 - 2 = 3 sticks
-      
+
       // Check that output was added
       expect(mockPlayer.inventory[2]?.item.id).toBe('wooden_pickaxe')
       expect(mockPlayer.inventory[2]?.quantity).toBe(1)
@@ -67,8 +67,14 @@ describe('CraftingService', () => {
 
     it('should handle crafting with exact material requirements', () => {
       // Set exact required amounts
-      mockPlayer.inventory[0] = { item: { id: 'wood', name: 'Wood', stackable: true, maxStackSize: 64 }, quantity: 3 }
-      mockPlayer.inventory[1] = { item: { id: 'stick', name: 'Stick', stackable: true, maxStackSize: 64 }, quantity: 2 }
+      mockPlayer.inventory[0] = {
+        item: { id: 'wood', name: 'Wood', stackable: true, maxStackSize: 64 },
+        quantity: 3,
+      }
+      mockPlayer.inventory[1] = {
+        item: { id: 'stick', name: 'Stick', stackable: true, maxStackSize: 64 },
+        quantity: 2,
+      }
 
       const result = craftingService.craftItem(mockPlayer, 'wooden_pickaxe')
 
@@ -81,7 +87,10 @@ describe('CraftingService', () => {
 
     it('should stack items correctly when adding to existing stack', () => {
       // Add existing wooden pickaxe to inventory
-      mockPlayer.inventory[2] = { item: { id: 'wooden_pickaxe', name: 'Wooden Pickaxe', stackable: true, maxStackSize: 64 }, quantity: 1 }
+      mockPlayer.inventory[2] = {
+        item: { id: 'wooden_pickaxe', name: 'Wooden Pickaxe', stackable: true, maxStackSize: 64 },
+        quantity: 1,
+      }
 
       const result = craftingService.craftItem(mockPlayer, 'wooden_pickaxe')
 
@@ -93,48 +102,48 @@ describe('CraftingService', () => {
   describe('recipe management', () => {
     it('should return existing recipe', () => {
       const recipe = craftingService.getRecipe('wooden_pickaxe')
-      
+
       expect(recipe).toBeDefined()
       expect(recipe?.id).toBe('wooden_pickaxe')
-      expect(recipe?.ingredients).toEqual({ 'wood': 3, 'stick': 2 })
-      expect(recipe?.output).toEqual({ 'wooden_pickaxe': 1 })
+      expect(recipe?.ingredients).toEqual({ wood: 3, stick: 2 })
+      expect(recipe?.output).toEqual({ wooden_pickaxe: 1 })
     })
 
     it('should return undefined for non-existent recipe', () => {
       const recipe = craftingService.getRecipe('nonexistent')
-      
+
       expect(recipe).toBeUndefined()
     })
 
     it('should add new recipe', () => {
       const newRecipe = {
         id: 'test_recipe',
-        ingredients: { 'test_item': 1 },
-        output: { 'test_output': 1 }
+        ingredients: { test_item: 1 },
+        output: { test_output: 1 },
       }
 
       craftingService.addRecipe(newRecipe)
       const retrievedRecipe = craftingService.getRecipe('test_recipe')
-      
+
       expect(retrievedRecipe).toEqual(newRecipe)
     })
 
     it('should remove existing recipe', () => {
       const removed = craftingService.removeRecipe('wooden_pickaxe')
-      
+
       expect(removed).toBe(true)
       expect(craftingService.getRecipe('wooden_pickaxe')).toBeUndefined()
     })
 
     it('should return false when removing non-existent recipe', () => {
       const removed = craftingService.removeRecipe('nonexistent')
-      
+
       expect(removed).toBe(false)
     })
 
     it('should return all recipes', () => {
       const recipes = craftingService.getAllRecipes()
-      
+
       expect(recipes).toBeDefined()
       expect(Object.keys(recipes).length).toBeGreaterThan(0)
       expect(recipes['wooden_pickaxe']).toBeDefined()
@@ -160,7 +169,7 @@ describe('CraftingService', () => {
         { item: { id: 'wood', name: 'Wood', stackable: true, maxStackSize: 64 }, quantity: 1 },
         { item: { id: 'wood', name: 'Wood', stackable: true, maxStackSize: 64 }, quantity: 1 },
         null,
-        null
+        null,
       ]
 
       const result = craftingService.craftItem(mockPlayer, 'stick')

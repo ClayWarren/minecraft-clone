@@ -9,6 +9,7 @@ This is a **modern Minecraft clone** built with **TypeScript and Entity-Componen
 ## Development Commands
 
 ### Starting the Application
+
 ```bash
 # Quick start (recommended) - TypeScript development server
 npm run dev
@@ -25,11 +26,13 @@ npm run dev                 # Start Vite development server
 ```
 
 ### Dependencies
+
 ```bash
 npm install                 # Install all dependencies (TypeScript, Vite, Three.js, WebSockets)
 ```
 
 ### Game Access
+
 - Development: http://localhost:3000
 - Menu allows selection between single/multiplayer modes
 
@@ -38,6 +41,7 @@ npm install                 # Install all dependencies (TypeScript, Vite, Three.
 ### Current Implementation Status
 
 **✅ Foundation Complete (TypeScript ECS)**:
+
 - Modern TypeScript codebase with strict type checking
 - Entity-Component-System architecture for scalable game logic
 - Three.js WebGL rendering with physics and lighting
@@ -45,6 +49,7 @@ npm install                 # Install all dependencies (TypeScript, Vite, Three.
 - Development workflow with Vite hot reload
 
 **🚧 Minecraft Features In Development**:
+
 - Block system for voxel world interaction
 - Chunk-based world generation with biomes
 - Mining and building mechanics
@@ -89,24 +94,28 @@ src/
 ### Minecraft-Specific Systems
 
 **BlockSystem (Priority)**:
+
 - Handle block placement and destruction
 - Voxel world representation and optimization
 - Block type definitions and properties
 - Collision detection for block interactions
 
 **WorldSystem**:
+
 - Chunk-based infinite world generation
 - Biome distribution (plains, forest, desert, mountains)
 - Terrain features (caves, ore deposits, structures)
 - World persistence and save/load
 
 **CraftingSystem**:
+
 - Recipe definitions and processing
 - Tool progression (wood → stone → iron → diamond)
 - Workbench and furnace mechanics
 - Item transformation and creation
 
 **InventorySystem**:
+
 - 36-slot player inventory management
 - Hotbar selection and item usage
 - Item stacking and metadata
@@ -127,24 +136,28 @@ src/
 When working on this codebase, prioritize implementing authentic Minecraft mechanics:
 
 #### Phase 1: Block System (Current Priority)
+
 1. **Block Entities**: Create block entities with proper voxel positioning
 2. **Block Interaction**: Left-click to mine, right-click to place
 3. **Block Types**: Basic blocks (grass, dirt, stone, wood)
 4. **Simple Inventory**: Basic item storage for collected blocks
 
 #### Phase 2: World Generation
+
 1. **Chunk System**: 16x16 block chunks for infinite worlds
 2. **Terrain Generation**: Height maps and basic biomes
 3. **Block Placement**: Proper voxel world structure
 4. **World Persistence**: Save/load chunk data
 
 #### Phase 3: Minecraft Mechanics
+
 1. **Mining System**: Tool requirements and block hardness
 2. **Crafting**: Workbench and basic recipes
 3. **Player Progression**: Tool durability and upgrades
 4. **Inventory UI**: Proper Minecraft-style interface
 
 #### Phase 4: Advanced Features
+
 1. **Multiplayer**: Real-time world synchronization
 2. **Mobs**: Basic creature AI and spawning
 3. **Weather**: Day/night cycle and environmental effects
@@ -161,18 +174,22 @@ When working on this codebase, prioritize implementing authentic Minecraft mecha
 ## Current Minecraft Implementation Notes
 
 ### Block Coordinate System
+
 Use standard Minecraft-style coordinates:
+
 - Y-axis: Vertical (0 = bedrock level)
 - X/Z-axis: Horizontal world coordinates
 - Chunk coordinates: World coordinates divided by 16
 
 ### Voxel Rendering Strategy
+
 - Use Three.js BoxGeometry for individual blocks initially
 - Plan migration to instanced rendering for performance
 - Implement face culling for hidden block faces
 - Add texture atlasing for efficient material usage
 
 ### Multiplayer Architecture
+
 - Server-side world authority for anti-cheat
 - Client prediction for responsive block placement
 - Chunk streaming to reduce bandwidth

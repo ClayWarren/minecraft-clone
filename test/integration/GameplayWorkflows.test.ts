@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { WebSocket } from 'ws'
 import MinecraftServer from '../../server'
-import type { NetworkMessage, PlayerUpdateMessage, BlockUpdateMessage } from '../../src/types/server'
+import type {
+  NetworkMessage,
+  PlayerUpdateMessage,
+  BlockUpdateMessage,
+} from '../../src/types/server'
 
 describe('Gameplay Workflows Integration', () => {
   let server: MinecraftServer
@@ -16,12 +20,12 @@ describe('Gameplay Workflows Integration', () => {
     close: vi.fn(),
     on: vi.fn(),
     addEventListener: vi.fn(),
-    removeEventListener: vi.fn()
+    removeEventListener: vi.fn(),
   })
 
   beforeEach(() => {
     server = new MinecraftServer()
-    
+
     mockWebSocket1 = createMockWebSocket()
     mockWebSocket2 = createMockWebSocket()
 
@@ -38,7 +42,7 @@ describe('Gameplay Workflows Integration', () => {
       ws: mockWebSocket1,
       velocity: { x: 0, y: 0, z: 0 },
       hunger: 20,
-      lastUpdate: Date.now()
+      lastUpdate: Date.now(),
     }
 
     player2 = {
@@ -53,7 +57,7 @@ describe('Gameplay Workflows Integration', () => {
       ws: mockWebSocket2,
       velocity: { x: 0, y: 0, z: 0 },
       hunger: 20,
-      lastUpdate: Date.now()
+      lastUpdate: Date.now(),
     }
 
     // Add players to server
@@ -67,7 +71,7 @@ describe('Gameplay Workflows Integration', () => {
       x: 0,
       z: 0,
       generated: true,
-      modified: false
+      modified: false,
     })
 
     server['worldService']['getChunk'] = vi.fn().mockReturnValue(createMockChunk())
@@ -86,7 +90,7 @@ describe('Gameplay Workflows Integration', () => {
     it('should handle complete player join workflow', () => {
       // This tests the workflow of a player joining the game
       const playerId = server['generatePlayerId']()
-      
+
       expect(playerId).toBeDefined()
       expect(typeof playerId).toBe('string')
       expect(playerId.length).toBeGreaterThan(0)
@@ -94,12 +98,12 @@ describe('Gameplay Workflows Integration', () => {
 
     it('should send initial game state to new players', () => {
       const mockPlayer = { ...player1, id: 'new-player' }
-      
+
       // Mock the sendInitialGameState method
       const sendInitialGameStateSpy = vi.spyOn(server as any, 'sendInitialGameState')
-      
+
       server['sendInitialGameState'](mockPlayer)
-      
+
       expect(sendInitialGameStateSpy).toHaveBeenCalledWith(mockPlayer)
     })
   })
@@ -112,9 +116,9 @@ describe('Gameplay Workflows Integration', () => {
         data: {
           position: { x: 5, y: 64, z: 5 },
           blockType: 'stone',
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       server['handleMessage'](player1.id, placeMessage)
@@ -130,9 +134,9 @@ describe('Gameplay Workflows Integration', () => {
         data: {
           position: { x: 5, y: 64, z: 5 },
           blockType: 'stone',
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       server['handleMessage'](player1.id, placeMessage)
@@ -143,9 +147,9 @@ describe('Gameplay Workflows Integration', () => {
         data: {
           position: { x: 5, y: 64, z: 5 },
           blockType: 'air',
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       server['handleMessage'](player1.id, mineMessage)
@@ -163,9 +167,9 @@ describe('Gameplay Workflows Integration', () => {
         data: {
           position: { x: 10, y: 64, z: 10 },
           blockType: 'stone',
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Player 2 places a block nearby
@@ -174,9 +178,9 @@ describe('Gameplay Workflows Integration', () => {
         data: {
           position: { x: 11, y: 64, z: 10 },
           blockType: 'dirt',
-          playerId: player2.id
+          playerId: player2.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       server['handleMessage'](player1.id, player1Block)
@@ -192,9 +196,9 @@ describe('Gameplay Workflows Integration', () => {
         data: {
           playerId: player1.id,
           position: { x: 5, y: 64, z: 5 },
-          rotation: { x: 0, y: 45, z: 0 }
+          rotation: { x: 0, y: 45, z: 0 },
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       server['handleMessage'](player1.id, moveMessage)
@@ -211,23 +215,20 @@ describe('Gameplay Workflows Integration', () => {
         type: 'crafting_request',
         data: {
           recipeId: 'wooden_pickaxe',
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock crafting service
       server['craftingService']['craftItem'] = vi.fn().mockReturnValue({
         success: true,
-        item: { type: 'wooden_pickaxe', quantity: 1 }
+        item: { type: 'wooden_pickaxe', quantity: 1 },
       })
 
       server['handleMessage'](player1.id, craftingMessage)
 
-      expect(server['craftingService']['craftItem']).toHaveBeenCalledWith(
-        player1,
-        'wooden_pickaxe'
-      )
+      expect(server['craftingService']['craftItem']).toHaveBeenCalledWith(player1, 'wooden_pickaxe')
     })
 
     it('should handle inventory operations', () => {
@@ -237,9 +238,9 @@ describe('Gameplay Workflows Integration', () => {
           playerId: player1.id,
           fromSlot: 0,
           toSlot: 1,
-          quantity: 5
+          quantity: 5,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       expect(() => {
@@ -254,9 +255,9 @@ describe('Gameplay Workflows Integration', () => {
         type: 'chunk_request',
         data: {
           chunkX: 1,
-          chunkZ: 1
+          chunkZ: 1,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock chunk generation
@@ -276,9 +277,9 @@ describe('Gameplay Workflows Integration', () => {
         data: {
           playerId: player1.id,
           position: { x: 1000, y: 64, z: 1000 },
-          rotation: { x: 0, y: 0, z: 0 }
+          rotation: { x: 0, y: 0, z: 0 },
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       server['handleMessage'](player1.id, longDistanceMove)
@@ -294,9 +295,9 @@ describe('Gameplay Workflows Integration', () => {
         data: {
           targetId: 'mob123',
           damage: 5,
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock mob service
@@ -304,16 +305,12 @@ describe('Gameplay Workflows Integration', () => {
         mobDied: false,
         mobUpdated: true,
         inventoryUpdated: false,
-        mob: { id: 'mob123', health: 15 }
+        mob: { id: 'mob123', health: 15 },
       })
 
       server['handleMessage'](player1.id, attackMessage)
 
-      expect(server['mobService']['handleAttack']).toHaveBeenCalledWith(
-        player1,
-        'mob123',
-        5
-      )
+      expect(server['mobService']['handleAttack']).toHaveBeenCalledWith(player1, 'mob123', 5)
     })
 
     it('should handle player health changes over time', () => {
@@ -337,9 +334,9 @@ describe('Gameplay Workflows Integration', () => {
         type: 'chat_message',
         data: {
           message: 'Hello world!',
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       expect(() => {
@@ -351,7 +348,7 @@ describe('Gameplay Workflows Integration', () => {
       const pingMessage: NetworkMessage = {
         type: 'ping',
         data: {},
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       server['handleMessage'](player1.id, pingMessage)
@@ -359,7 +356,7 @@ describe('Gameplay Workflows Integration', () => {
       expect(server['networkManager']['send']).toHaveBeenCalledWith(
         player1.ws,
         expect.objectContaining({
-          type: 'pong'
+          type: 'pong',
         })
       )
     })
@@ -373,9 +370,9 @@ describe('Gameplay Workflows Integration', () => {
         data: {
           position: { x: 5, y: 64, z: 5 },
           blockType: 'stone',
-          playerId: player1.id
+          playerId: player1.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Simulate disconnection
@@ -392,7 +389,7 @@ describe('Gameplay Workflows Integration', () => {
       const invalidMessage: NetworkMessage = {
         type: 'invalid_type',
         data: {},
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

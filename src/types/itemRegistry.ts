@@ -1,4 +1,4 @@
-import { Item } from './items';
+import { Item } from './items'
 
 export const ITEM_REGISTRY: Record<string, Item> = {
   dirt: { id: 'dirt', name: 'Dirt', stackable: true, maxStackSize: 64 },
@@ -6,4 +6,4 @@ export const ITEM_REGISTRY: Record<string, Item> = {
   wood: { id: 'wood', name: 'Wood', stackable: true, maxStackSize: 64 },
   planks: { id: 'planks', name: 'Planks', stackable: true, maxStackSize: 64 },
   // Add more items as needed
-};
+}

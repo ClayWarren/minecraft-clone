@@ -20,7 +20,7 @@ export class InputSystem extends System {
     mouseX: 0,
     mouseY: 0,
     leftClick: false,
-    rightClick: false
+    rightClick: false,
   }
 
   private camera: THREE.Camera
@@ -40,37 +40,65 @@ export class InputSystem extends System {
     // Keyboard events
     document.addEventListener('keydown', this.onKeyDown.bind(this))
     document.addEventListener('keyup', this.onKeyUp.bind(this))
-    
+
     // Mouse events
     document.addEventListener('mousemove', this.onMouseMove.bind(this))
     document.addEventListener('mousedown', this.onMouseDown.bind(this))
     document.addEventListener('mouseup', this.onMouseUp.bind(this))
-    
+
     // Pointer lock events
     document.addEventListener('click', this.requestPointerLock.bind(this))
   }
 
   private onKeyDown(event: KeyboardEvent): void {
     switch (event.code) {
-      case 'KeyW': this.input.forward = true; break
-      case 'KeyS': this.input.backward = true; break
-      case 'KeyA': this.input.left = true; break
-      case 'KeyD': this.input.right = true; break
-      case 'Space': this.input.jump = true; break
-      case 'ShiftLeft': this.input.sneak = true; break
-      case 'ControlLeft': this.input.sprint = true; break
+      case 'KeyW':
+        this.input.forward = true
+        break
+      case 'KeyS':
+        this.input.backward = true
+        break
+      case 'KeyA':
+        this.input.left = true
+        break
+      case 'KeyD':
+        this.input.right = true
+        break
+      case 'Space':
+        this.input.jump = true
+        break
+      case 'ShiftLeft':
+        this.input.sneak = true
+        break
+      case 'ControlLeft':
+        this.input.sprint = true
+        break
     }
   }
 
   private onKeyUp(event: KeyboardEvent): void {
     switch (event.code) {
-      case 'KeyW': this.input.forward = false; break
-      case 'KeyS': this.input.backward = false; break
-      case 'KeyA': this.input.left = false; break
-      case 'KeyD': this.input.right = false; break
-      case 'Space': this.input.jump = false; break
-      case 'ShiftLeft': this.input.sneak = false; break
-      case 'ControlLeft': this.input.sprint = false; break
+      case 'KeyW':
+        this.input.forward = false
+        break
+      case 'KeyS':
+        this.input.backward = false
+        break
+      case 'KeyA':
+        this.input.left = false
+        break
+      case 'KeyD':
+        this.input.right = false
+        break
+      case 'Space':
+        this.input.jump = false
+        break
+      case 'ShiftLeft':
+        this.input.sneak = false
+        break
+      case 'ControlLeft':
+        this.input.sprint = false
+        break
     }
   }
 
@@ -84,7 +112,8 @@ export class InputSystem extends System {
   private onMouseDown(event: MouseEvent): void {
     if (!document.pointerLockElement) return
 
-    if (event.button === 0) { // Left click
+    if (event.button === 0) {
+      // Left click
       this.input.leftClick = true
       // Check for mob attack
       const raycaster = new THREE.Raycaster()
@@ -93,10 +122,13 @@ export class InputSystem extends System {
 
       for (const intersect of intersects) {
         // Check if the intersected object belongs to a mob entity
-        const mobEntity = this.game.getECS().getAllEntities().find(entity => {
-          const meshComp = entity.getComponent<MeshComponent>('mesh')
-          return meshComp && meshComp.mesh === intersect.object && entity.hasComponent('mob')
-        })
+        const mobEntity = this.game
+          .getECS()
+          .getAllEntities()
+          .find(entity => {
+            const meshComp = entity.getComponent<MeshComponent>('mesh')
+            return meshComp && meshComp.mesh === intersect.object && entity.hasComponent('mob')
+          })
 
         if (mobEntity) {
           console.log('Attacking mob:', mobEntity.id)
@@ -120,15 +152,17 @@ export class InputSystem extends System {
   private sendAttackMessage(targetId: string, damage: number): void {
     const ws = this.game.ws // Access WebSocket from Game instance
     if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({
-        type: 'attack',
-        data: {
-          targetId: targetId,
-          damage: damage,
-          attackerId: this.game.getPlayer().id // Player's own ID
-        },
-        timestamp: Date.now()
-      }))
+      ws.send(
+        JSON.stringify({
+          type: 'attack',
+          data: {
+            targetId,
+            damage,
+            attackerId: this.game.getPlayer().id, // Player's own ID
+          },
+          timestamp: Date.now(),
+        })
+      )
       console.log(`Sent attack message to ${targetId} for ${damage} damage.`)
     } else {
       console.warn('WebSocket not connected. Cannot send attack message.')
@@ -142,7 +176,7 @@ export class InputSystem extends System {
       this.updatePlayerMovement(player, deltaTime)
       this.updatePlayerLook(player, deltaTime)
     }
-    
+
     // Use deltaTime to prevent unused variable warning
     void deltaTime
 
@@ -153,11 +187,11 @@ export class InputSystem extends System {
 
   private updatePlayerMovement(player: Entity, _deltaTime: number): void {
     const velocity = player.getComponent<VelocityComponent>('velocity')!
-    const playerComp = player.getComponent('player') as any
+    const playerComp = player.getComponent('player') as { speed?: number }
 
     // Calculate movement direction
     const direction = new Vector3()
-    
+
     if (this.input.forward) direction.z -= 1
     if (this.input.backward) direction.z += 1
     if (this.input.left) direction.x -= 1
@@ -166,7 +200,7 @@ export class InputSystem extends System {
     // Normalize and apply speed
     if (direction.length() > 0) {
       direction.normalize()
-      
+
       // Apply camera rotation to movement direction
       const cameraMatrix = new THREE.Matrix4()
       cameraMatrix.extractRotation(this.camera.matrixWorld)
@@ -204,7 +238,7 @@ export class InputSystem extends System {
     transform.rotation.x -= this.input.mouseY * this.mouseSensitivity
 
     // Clamp vertical rotation
-    transform.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, transform.rotation.x))
+    transform.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, transform.rotation.x))
 
     // Apply rotation to camera
     this.camera.rotation.x = transform.rotation.x

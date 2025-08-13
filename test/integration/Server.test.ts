@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { WebSocket } from 'ws'
 import MinecraftServer from '../../server'
-import type { NetworkMessage, PlayerUpdateMessage, BlockUpdateMessage } from '../../src/types/server'
+import type {
+  NetworkMessage,
+  PlayerUpdateMessage,
+  BlockUpdateMessage,
+} from '../../src/types/server'
 
 describe('MinecraftServer Integration', () => {
   let server: MinecraftServer
@@ -10,7 +14,7 @@ describe('MinecraftServer Integration', () => {
   beforeEach(() => {
     // Create a fresh server instance for each test
     server = new MinecraftServer()
-    
+
     // Create a mock WebSocket
     mockWebSocket = {
       readyState: 1, // OPEN
@@ -18,7 +22,7 @@ describe('MinecraftServer Integration', () => {
       close: vi.fn(),
       on: vi.fn(),
       addEventListener: vi.fn(),
-      removeEventListener: vi.fn()
+      removeEventListener: vi.fn(),
     }
   })
 
@@ -33,7 +37,7 @@ describe('MinecraftServer Integration', () => {
     it('should handle player connection and send initial game state', () => {
       // Simulate player connection
       const playerId = server['generatePlayerId']()
-      
+
       // Mock the handlePlayerConnect method
       const originalHandlePlayerConnect = server['handlePlayerConnect'].bind(server)
       const mockHandlePlayerConnect = vi.fn(originalHandlePlayerConnect)
@@ -77,7 +81,7 @@ describe('MinecraftServer Integration', () => {
         ws: mockWebSocket,
         velocity: { x: 0, y: 0, z: 0 },
         hunger: 20,
-        lastUpdate: Date.now()
+        lastUpdate: Date.now(),
       }
 
       // Add player to player manager
@@ -90,9 +94,9 @@ describe('MinecraftServer Integration', () => {
         data: {
           playerId: mockPlayer.id,
           position: { x: 10, y: 65, z: 10 },
-          rotation: { x: 0, y: 90, z: 0 }
+          rotation: { x: 0, y: 90, z: 0 },
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       server['handleMessage'](mockPlayer.id, message)
@@ -108,15 +112,15 @@ describe('MinecraftServer Integration', () => {
         data: {
           position: { x: 5, y: 64, z: 5 },
           blockType: 'stone',
-          playerId: mockPlayer.id
+          playerId: mockPlayer.id,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock world service methods
       const mockChunk = {
         blocks: new Map(),
-        dirty: false
+        dirty: false,
       }
       server['worldService']['getChunk'] = vi.fn().mockReturnValue(mockChunk)
       server['worldService']['getAllChunks'] = vi.fn().mockReturnValue(new Map())
@@ -133,7 +137,7 @@ describe('MinecraftServer Integration', () => {
       const message: NetworkMessage = {
         type: 'chunk_request',
         data: { chunkX: 0, chunkZ: 0 },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock world service methods
@@ -151,21 +155,23 @@ describe('MinecraftServer Integration', () => {
       const message: NetworkMessage = {
         type: 'unknown_message_type',
         data: {},
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       const consoleSpy = vi.spyOn(console, 'warn')
 
       server['handleMessage'](mockPlayer.id, message)
 
-      expect(consoleSpy).toHaveBeenCalledWith('Unknown message type from test-player: unknown_message_type')
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Unknown message type from test-player: unknown_message_type'
+      )
     })
   })
 
   describe('Game Loop', () => {
     it('should update time correctly', () => {
       const initialTime = server['timeOfDay']
-      
+
       // Mock the updateTime method
       const originalUpdateTime = server['updateTime'].bind(server)
       const mockUpdateTime = vi.fn(originalUpdateTime)
@@ -193,7 +199,7 @@ describe('MinecraftServer Integration', () => {
         ws: mockWebSocket,
         velocity: { x: 0, y: 0, z: 0 },
         hunger: 20,
-        lastUpdate: Date.now()
+        lastUpdate: Date.now(),
       }
 
       server['playerManager']['players'].set(mockPlayer.id, mockPlayer)
@@ -227,7 +233,7 @@ describe('MinecraftServer Integration', () => {
         ws: mockWebSocket,
         velocity: { x: 0, y: 0, z: 0 },
         hunger: 20,
-        lastUpdate: Date.now()
+        lastUpdate: Date.now(),
       }
 
       server['playerManager']['players'].set(mockPlayer.id, mockPlayer)
@@ -235,7 +241,7 @@ describe('MinecraftServer Integration', () => {
       const message: NetworkMessage = {
         type: 'test_message',
         data: { test: 'data' },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock the network manager send method
@@ -259,7 +265,7 @@ describe('MinecraftServer Integration', () => {
         ws: mockWebSocket,
         velocity: { x: 0, y: 0, z: 0 },
         hunger: 20,
-        lastUpdate: Date.now()
+        lastUpdate: Date.now(),
       }
 
       const mockPlayer2 = {
@@ -274,7 +280,7 @@ describe('MinecraftServer Integration', () => {
         ws: { ...mockWebSocket, send: vi.fn() },
         velocity: { x: 0, y: 0, z: 0 },
         hunger: 20,
-        lastUpdate: Date.now()
+        lastUpdate: Date.now(),
       }
 
       server['playerManager']['players'].set(mockPlayer1.id, mockPlayer1)
@@ -283,7 +289,7 @@ describe('MinecraftServer Integration', () => {
       const message: NetworkMessage = {
         type: 'broadcast_message',
         data: { broadcast: 'data' },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       // Mock the network manager broadcast method
@@ -291,7 +297,10 @@ describe('MinecraftServer Integration', () => {
 
       server['broadcast'](message)
 
-      expect(server['networkManager']['broadcast']).toHaveBeenCalledWith([mockPlayer1, mockPlayer2], message)
+      expect(server['networkManager']['broadcast']).toHaveBeenCalledWith(
+        [mockPlayer1, mockPlayer2],
+        message
+      )
     })
   })
 })

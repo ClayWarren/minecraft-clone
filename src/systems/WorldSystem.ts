@@ -8,7 +8,7 @@ import { getBlockType } from '@/types/blocks'
 
 export class WorldSystem extends System {
   readonly name = 'world'
-  
+
   private worldGenerator: WorldGenerator
   private scene: THREE.Scene
   private chunks: Map<string, Chunk> = new Map()
@@ -17,21 +17,21 @@ export class WorldSystem extends System {
   private renderDistance = 4 // Chunks to render around player
   private lastPlayerChunk = { x: Number.MAX_VALUE, z: Number.MAX_VALUE }
 
-  constructor(scene: THREE.Scene, seed: number = 12345) {
+  constructor(scene: THREE.Scene, seed = 12345) {
     super()
     this.scene = scene
-    
+
     this.config = {
       chunkSize: 16,
       worldHeight: 128,
       seaLevel: 64,
-      seed: seed,
+      seed,
       biomeScale: 0.005,
       terrainScale: 0.01,
       caveScale: 0.02,
-      oreScale: 0.1
+      oreScale: 0.1,
     }
-    
+
     this.worldGenerator = new WorldGenerator(this.config)
   }
 
@@ -60,7 +60,11 @@ export class WorldSystem extends System {
 
     // Find chunks that should be loaded
     for (let x = playerChunkX - this.renderDistance; x <= playerChunkX + this.renderDistance; x++) {
-      for (let z = playerChunkZ - this.renderDistance; z <= playerChunkZ + this.renderDistance; z++) {
+      for (
+        let z = playerChunkZ - this.renderDistance;
+        z <= playerChunkZ + this.renderDistance;
+        z++
+      ) {
         const chunkKey = getChunkKey(x, z)
         if (!this.chunks.has(chunkKey)) {
           chunksToLoad.push({ x, z })
@@ -72,7 +76,7 @@ export class WorldSystem extends System {
     for (const [chunkKey, chunk] of this.chunks) {
       const dx = Math.abs(chunk.x - playerChunkX)
       const dz = Math.abs(chunk.z - playerChunkZ)
-      
+
       if (dx > this.renderDistance || dz > this.renderDistance) {
         chunksToUnload.push(chunkKey)
       }
@@ -88,12 +92,14 @@ export class WorldSystem extends System {
       this.unloadChunk(chunkKey)
     }
 
-    console.log(`Loaded ${chunksToLoad.length} chunks, unloaded ${chunksToUnload.length} chunks around player chunk (${playerChunkX}, ${playerChunkZ})`)
+    console.log(
+      `Loaded ${chunksToLoad.length} chunks, unloaded ${chunksToUnload.length} chunks around player chunk (${playerChunkX}, ${playerChunkZ})`
+    )
   }
 
   private loadChunk(chunkX: number, chunkZ: number): void {
     const chunkKey = getChunkKey(chunkX, chunkZ)
-    
+
     if (this.chunks.has(chunkKey)) return
 
     // Generate the chunk
@@ -126,12 +132,12 @@ export class WorldSystem extends System {
   private createChunkMesh(chunk: Chunk): void {
     const chunkKey = getChunkKey(chunk.x, chunk.z)
     const chunkGroup = new THREE.Group()
-    
+
     // Create individual block meshes for now (will optimize later with merged geometry)
     for (const [blockKey, blockType] of chunk.blocks) {
       const [x, y, z] = blockKey.split(',').map(Number)
       const blockData = getBlockType(blockType)
-      
+
       if (!blockData || blockData.transparent) continue
 
       // Check if block is exposed (has at least one face visible)
@@ -165,18 +171,21 @@ export class WorldSystem extends System {
     return mesh
   }
 
-  private isBlockExposed(x: number, y: number, z: number, chunk: Chunk): boolean {
+  private isBlockExposed(x: number, y: number, z: number, _chunk: Chunk): boolean {
     // Check all 6 adjacent positions
     const adjacentPositions = [
-      { x: x + 1, y, z }, { x: x - 1, y, z },
-      { x, y: y + 1, z }, { x, y: y - 1, z },
-      { x, y, z: z + 1 }, { x, y, z: z - 1 }
+      { x: x + 1, y, z },
+      { x: x - 1, y, z },
+      { x, y: y + 1, z },
+      { x, y: y - 1, z },
+      { x, y, z: z + 1 },
+      { x, y, z: z - 1 },
     ]
 
     for (const pos of adjacentPositions) {
       const adjacentBlockType = this.getBlockAt(pos.x, pos.y, pos.z)
       const adjacentBlockData = getBlockType(adjacentBlockType)
-      
+
       // If adjacent block is air or transparent, this block is exposed
       if (!adjacentBlockData || adjacentBlockData.transparent) {
         return true
@@ -191,7 +200,7 @@ export class WorldSystem extends System {
     const chunkX = worldToChunk(x, this.config.chunkSize)
     const chunkZ = worldToChunk(z, this.config.chunkSize)
     const chunkKey = getChunkKey(chunkX, chunkZ)
-    
+
     const chunk = this.chunks.get(chunkKey)
     if (!chunk) return 'air'
 
@@ -206,7 +215,7 @@ export class WorldSystem extends System {
   }
 
   private disposeChunkMesh(chunkGroup: THREE.Group): void {
-    chunkGroup.traverse((object) => {
+    chunkGroup.traverse(object => {
       if (object instanceof THREE.Mesh) {
         object.geometry.dispose()
         if (Array.isArray(object.material)) {
@@ -232,12 +241,12 @@ export class WorldSystem extends System {
     const chunkX = worldToChunk(x, this.config.chunkSize)
     const chunkZ = worldToChunk(z, this.config.chunkSize)
     const chunkKey = getChunkKey(chunkX, chunkZ)
-    
+
     const chunk = this.chunks.get(chunkKey)
     if (!chunk) return
 
     const blockKey = `${x},${y},${z}`
-    
+
     if (blockType === 'air') {
       chunk.blocks.delete(blockKey)
     } else {
@@ -268,11 +277,11 @@ export class WorldSystem extends System {
 
   cleanup(): void {
     // Clean up all chunks and meshes
-    for (const [chunkKey, chunkMesh] of this.chunkMeshes) {
+    for (const [_chunkKey, chunkMesh] of this.chunkMeshes) {
       this.scene.remove(chunkMesh)
       this.disposeChunkMesh(chunkMesh)
     }
-    
+
     this.chunks.clear()
     this.chunkMeshes.clear()
   }

@@ -10,8 +10,8 @@ export abstract class System implements ISystem {
     if (this.requiredComponents.length === 0) {
       return entities
     }
-    
-    return entities.filter(entity => 
+
+    return entities.filter(entity =>
       this.requiredComponents.every(component => entity.hasComponent(component))
     )
   }

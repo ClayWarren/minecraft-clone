@@ -5,6 +5,7 @@ A **modern Minecraft clone** built with **TypeScript and Entity-Component-System
 ## 🎯 Project Vision
 
 Build a complete Minecraft-style game featuring:
+
 - **Voxel world generation** with infinite terrain
 - **Block building and mining** mechanics
 - **Crafting and progression** systems
@@ -14,6 +15,7 @@ Build a complete Minecraft-style game featuring:
 ## ✨ Current Status
 
 ### ✅ Completed (TypeScript ECS Foundation)
+
 - **Modern TypeScript Architecture**: Full ECS pattern implementation
 - **3D Rendering Engine**: Three.js WebGL with physics and lighting
 - **Player Movement**: First-person WASD controls with mouse look
@@ -22,15 +24,18 @@ Build a complete Minecraft-style game featuring:
 - **Clean Codebase**: Modular systems, type safety, no 4000-line monoliths!
 
 ### 🚧 In Development (Minecraft Features)
+
 - **Block System**: Voxel rendering and interaction
-- **World Generation**: Infinite terrain with biomes and structures  
+- **World Generation**: Infinite terrain with biomes and structures
 - **Mining & Building**: Block placement and destruction
 - **Crafting System**: Tools, items, and progression
 - **Inventory Management**: Item storage and hotbar
 - **Multiplayer**: Real-time world synchronization
 
 ### 🎮 Demo Scene
+
 Currently displays a test environment with:
+
 - Green grass ground plane
 - Various colored blocks (demonstrating entity system)
 - First-person camera controls
@@ -40,6 +45,7 @@ Currently displays a test environment with:
 ## 🚀 Quick Start
 
 ### Installation
+
 ```bash
 # Clone and install
 git clone <repository-url>
@@ -51,6 +57,7 @@ npm run dev
 ```
 
 ### Play the Demo
+
 1. Open http://localhost:3000
 2. Click "Single Player"
 3. Click anywhere to lock cursor
@@ -59,24 +66,28 @@ npm run dev
 ## 🎮 Planned Minecraft Features
 
 ### 🌍 World & Terrain
+
 - **Infinite World**: Chunk-based procedural generation
 - **Biomes**: Plains, forests, deserts, mountains, oceans
 - **Terrain Features**: Caves, villages, ore deposits
 - **Day/Night Cycle**: Dynamic lighting and mob spawning
 
 ### ⛏️ Core Gameplay
+
 - **Block Types**: Grass, dirt, stone, wood, ores, liquids
 - **Mining System**: Tool requirements, block hardness, durability
 - **Building**: Block placement with physics validation
 - **Crafting**: Tool progression from wood → stone → iron → diamond
 
 ### 🎒 Items & Progression
+
 - **Inventory System**: 36-slot inventory with hotbar
 - **Tools & Weapons**: Pickaxes, swords, axes with durability
 - **Crafting Recipes**: Workbench-based item creation
 - **Resource Gathering**: Mining, logging, farming
 
 ### 🌐 Multiplayer
+
 - **Real-time Sync**: Shared world state across players
 - **Server Authority**: Anti-cheat with server-side validation
 - **World Persistence**: Save/load world data
@@ -85,11 +96,12 @@ npm run dev
 ## 🏗️ Technical Architecture
 
 ### Modern TypeScript ECS
+
 ```typescript
 // Entities: Game objects
 const block = new Entity('grass_block')
 
-// Components: Data containers  
+// Components: Data containers
 block.addComponent(new TransformComponent(x, y, z))
 block.addComponent(new MeshComponent(grassMesh))
 block.addComponent(new BlockComponent('grass'))
@@ -103,6 +115,7 @@ class BlockSystem extends System {
 ```
 
 ### Core Systems Architecture
+
 - **BlockSystem**: Voxel world management and interactions
 - **WorldSystem**: Chunk generation, biomes, structures
 - **CraftingSystem**: Recipe processing and item creation
@@ -112,6 +125,7 @@ class BlockSystem extends System {
 - **NetworkSystem**: Multiplayer synchronization
 
 ### File Structure
+
 ```
 src/
 ├── types/
@@ -136,24 +150,28 @@ src/
 ## 🛠️ Development Roadmap
 
 ### Phase 1: Block System ⏳
+
 - [ ] Block entity creation and rendering
 - [ ] Block interaction (place/destroy)
 - [ ] Basic material system
 - [ ] Simple inventory
 
 ### Phase 2: World Generation 🗺️
+
 - [ ] Chunk-based terrain generation
 - [ ] Basic biomes (plains, forest, desert)
 - [ ] Ore distribution and caves
 - [ ] World persistence
 
 ### Phase 3: Gameplay Systems ⛏️
+
 - [ ] Mining with tool requirements
-- [ ] Crafting table and recipes  
+- [ ] Crafting table and recipes
 - [ ] Player inventory UI
 - [ ] Tool durability system
 
 ### Phase 4: Advanced Features 🌟
+
 - [ ] Multiplayer networking
 - [ ] Mob spawning and AI
 - [ ] Weather and day/night
@@ -170,12 +188,14 @@ src/
 ## 🎮 Why TypeScript + ECS?
 
 ### Problems with Original Monolithic Code
+
 - **4000+ line single file** - impossible to maintain
 - **No type safety** - runtime errors and bugs
 - **Coupled systems** - changes break multiple features
 - **No testing** - difficult to verify functionality
 
 ### Benefits of TypeScript ECS
+
 - **Modular systems** - easy to add/remove features
 - **Type safety** - catch errors at compile time
 - **Scalable architecture** - handles complex game features

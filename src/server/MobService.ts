@@ -19,12 +19,12 @@ export class MobService {
   private mobDrops: Record<string, MobDrop[]> = {
     zombie: [
       { item: 'rotten_flesh', quantity: 1, chance: 0.8 },
-      { item: 'iron_ingot', quantity: 1, chance: 0.1 }
+      { item: 'iron_ingot', quantity: 1, chance: 0.1 },
     ],
     sheep: [
       { item: 'mutton', quantity: 1, chance: 0.9 },
-      { item: 'wool', quantity: 1, chance: 0.7 }
-    ]
+      { item: 'wool', quantity: 1, chance: 0.7 },
+    ],
   }
 
   public spawnMobs(players: Player[], chunks: Map<string, Chunk>): void {
@@ -40,16 +40,21 @@ export class MobService {
       if (!chunk) return
 
       // Randomly decide to spawn a mob in this chunk
-      if (Math.random() < 0.01) { // 1% chance per chunk per second
+      if (Math.random() < 0.01) {
+        // 1% chance per chunk per second
         const timeOfDay = this.getTimeOfDay() // This would need to be passed in or calculated
-        const mobType = (timeOfDay > 13000 || timeOfDay < 2000) ? 'zombie' : 'sheep' // Simple day/night mob type
+        const mobType = timeOfDay > 13000 || timeOfDay < 2000 ? 'zombie' : 'sheep' // Simple day/night mob type
 
         // Find a suitable spawn position within the chunk
         const chunkX = parseInt(chunkKey.split(',')[0])
         const chunkZ = parseInt(chunkKey.split(',')[1])
 
-        const worldX = chunkX * DEFAULT_WORLD_CONFIG.chunkSize + Math.floor(Math.random() * DEFAULT_WORLD_CONFIG.chunkSize)
-        const worldZ = chunkZ * DEFAULT_WORLD_CONFIG.chunkSize + Math.floor(Math.random() * DEFAULT_WORLD_CONFIG.chunkSize)
+        const worldX =
+          chunkX * DEFAULT_WORLD_CONFIG.chunkSize +
+          Math.floor(Math.random() * DEFAULT_WORLD_CONFIG.chunkSize)
+        const worldZ =
+          chunkZ * DEFAULT_WORLD_CONFIG.chunkSize +
+          Math.floor(Math.random() * DEFAULT_WORLD_CONFIG.chunkSize)
         const worldY = this.getGroundHeight(worldX, worldZ, chunks) + 1 // Spawn 1 block above ground
 
         // Check if spawn position is valid (e.g., not inside a block)
@@ -61,7 +66,9 @@ export class MobService {
     })
   }
 
-  public updateMobsAI(worldService: any): void {
+  public updateMobsAI(worldService: {
+    getBlockAt?: (x: number, y: number, z: number) => string
+  }): void {
     this.mobs.forEach(mob => {
       // Simple random walk for all mobs for now
       const speed = 0.05 // Blocks per second
@@ -73,14 +80,14 @@ export class MobService {
         mob.velocity = {
           x: Math.cos(angle) * speed,
           y: 0,
-          z: Math.sin(angle) * speed
+          z: Math.sin(angle) * speed,
         }
       }
 
       // Apply velocity
-      let newX = currentPosition.x + mob.velocity.x
+      const newX = currentPosition.x + mob.velocity.x
       let newY = currentPosition.y + mob.velocity.y
-      let newZ = currentPosition.z + mob.velocity.z
+      const newZ = currentPosition.z + mob.velocity.z
 
       // Simple collision detection with ground
       const groundY = this.getGroundHeight(newX, newZ, worldService.getAllChunks())
@@ -113,7 +120,7 @@ export class MobService {
       // Implement mob drops
       const drops = this.mobDrops[targetMob.type]
       let inventoryUpdated = false
-      
+
       if (drops && attacker) {
         drops.forEach(drop => {
           if (Math.random() < drop.chance) {
@@ -130,14 +137,16 @@ export class MobService {
             if (!found) {
               const emptyIdx = attacker.inventory.findIndex(s => s === null)
               if (emptyIdx !== -1) {
-                attacker.inventory[emptyIdx] = { 
-                  item: { id: drop.item, name: drop.item, stackable: true, maxStackSize: 64 }, 
-                  quantity: drop.quantity 
+                attacker.inventory[emptyIdx] = {
+                  item: { id: drop.item, name: drop.item, stackable: true, maxStackSize: 64 },
+                  quantity: drop.quantity,
                 }
                 inventoryUpdated = true
               }
             }
-            console.log(`Player ${attacker.id} received ${drop.quantity} ${drop.item}. Inventory updated.`)
+            console.log(
+              `Player ${attacker.id} received ${drop.quantity} ${drop.item}. Inventory updated.`
+            )
           }
         })
       }
@@ -157,11 +166,11 @@ export class MobService {
     const mobId = this.generateMobId()
     const mob: Mob = {
       id: mobId,
-      type: type,
+      type,
       position: { x, y, z },
       health: 10,
       rotation: { x: 0, y: 0, z: 0 },
-      velocity: { x: 0, y: 0, z: 0 }
+      velocity: { x: 0, y: 0, z: 0 },
     }
     this.mobs.set(mobId, mob)
     console.log(`Spawned ${type} at ${x},${y},${z}`)

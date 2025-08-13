@@ -13,26 +13,26 @@ export interface Player {
 // Custom error for critical network issues
 export class CriticalNetworkError extends Error {
   constructor(message: string) {
-    super(message);
-    this.name = 'CriticalNetworkError';
+    super(message)
+    this.name = 'CriticalNetworkError'
   }
 }
 
 export interface ServerPlayer extends Player {
-  ws: WebSocket;
-  velocity: { x: number; y: number; z: number };
-  hunger: number;
-  lastUpdate: number;
-  lastActivity: number;
-  pendingMessages: NetworkMessage[];
-  messageHandler?: (data: string) => void;
-  closeHandler?: () => void;
+  ws: WebSocket
+  velocity: { x: number; y: number; z: number }
+  hunger: number
+  lastUpdate: number
+  lastActivity: number
+  pendingMessages: NetworkMessage[]
+  messageHandler?: (data: string) => void
+  closeHandler?: () => void
 }
 
 export interface Block {
   type: string
   position: { x: number; y: number; z: number }
-  metadata?: any
+  metadata?: Record<string, unknown>
 }
 
 export interface Chunk {
@@ -43,7 +43,7 @@ export interface Chunk {
   modified: boolean
   dirty?: boolean
   loaded?: boolean
-  entities?: any[]
+  entities?: unknown[]
 }
 
 export interface BiomeDefinition {
@@ -80,7 +80,7 @@ export interface GameMode {
 // Network message types
 export interface NetworkMessage {
   type: string
-  data: any
+  data: unknown
   timestamp: number
 }
 

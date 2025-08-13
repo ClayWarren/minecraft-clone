@@ -27,7 +27,7 @@ export class ECS {
   }
 
   getEntitiesWithComponents(...componentTypes: string[]): Entity[] {
-    return this.getAllEntities().filter(entity => 
+    return this.getAllEntities().filter(entity =>
       componentTypes.every(type => entity.hasComponent(type))
     )
   }
@@ -48,7 +48,7 @@ export class ECS {
   // Update loop
   update(deltaTime: number): void {
     const entities = this.getAllEntities()
-    
+
     for (const system of this.systems) {
       system.update(deltaTime, entities)
     }
@@ -61,7 +61,7 @@ export class ECS {
         system.cleanup()
       }
     }
-    
+
     this.entities.clear()
     this.systems = []
   }
