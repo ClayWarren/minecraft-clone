@@ -8,7 +8,10 @@ export class PhysicsService {
 
   public updatePlayerPhysics(
     players: Player[],
-    worldService: { getAllChunks: () => Map<string, unknown> }
+    worldService: {
+      getAllChunks: () => Map<string, Chunk>
+      getBlockAt?: (x: number, y: number, z: number) => string
+    }
   ): void {
     players.forEach(player => {
       // Only operate on ServerPlayer (has velocity, etc.)
@@ -58,7 +61,10 @@ export class PhysicsService {
 
   public checkCollision(
     position: { x: number; y: number; z: number },
-    worldService: { getAllChunks: () => Map<string, unknown> }
+    worldService: {
+      getAllChunks: () => Map<string, Chunk>
+      getBlockAt?: (x: number, y: number, z: number) => string
+    }
   ): boolean {
     // Check if position is inside a block
     const blockAtPosition = this.getBlockAt(
@@ -72,7 +78,10 @@ export class PhysicsService {
 
   public findSafePosition(
     startPosition: { x: number; y: number; z: number },
-    worldService: { getAllChunks: () => Map<string, unknown> }
+    worldService: {
+      getAllChunks: () => Map<string, Chunk>
+      getBlockAt?: (x: number, y: number, z: number) => string
+    }
   ): { x: number; y: number; z: number } {
     const position = { ...startPosition }
 
@@ -163,7 +172,10 @@ export class PhysicsService {
     origin: { x: number; y: number; z: number },
     direction: { x: number; y: number; z: number },
     maxDistance: number,
-    worldService: { getAllChunks: () => Map<string, unknown> }
+    worldService: {
+      getAllChunks: () => Map<string, Chunk>
+      getBlockAt?: (x: number, y: number, z: number) => string
+    }
   ): { hit: boolean; position?: { x: number; y: number; z: number }; blockType?: string } {
     const step = 0.1 // Step size for raycast
     const currentPos = { ...origin }

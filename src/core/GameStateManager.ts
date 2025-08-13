@@ -222,7 +222,7 @@ export class GameStateManager {
   getAvailableTransitions(): GameState[] {
     const available: GameState[] = []
 
-    for (const [key, transition] of this.transitions) {
+    for (const [, transition] of this.transitions) {
       if (transition.from === this.currentState) {
         if (!transition.condition || transition.condition()) {
           available.push(transition.to)

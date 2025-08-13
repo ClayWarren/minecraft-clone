@@ -12,7 +12,7 @@ export class InstancedVoxelRenderer {
 
   // Performance settings
   private readonly MAX_INSTANCES_PER_MESH = 10000
-  private readonly FRUSTUM_CULLING_ENABLED = true
+  // FRUSTUM_CULLING_ENABLED is not currently used but kept for future implementation
 
   constructor(scene: THREE.Scene) {
     this.scene = scene
@@ -182,12 +182,15 @@ export class InstancedVoxelRenderer {
     this.materials.clear()
   }
 
-  private createInstancedMesh(blockId: string): InstancedBlockMesh | null {
+  private createInstancedMesh(blockId: string): InstancedBlockMesh | undefined {
     const geometry = this.geometries.get(blockId)
     const material = this.materials.get(blockId)
 
     if (!geometry || !material) {
-      return null
+      console.error(
+        `InstancedVoxelRenderer: Missing geometry or material for block type '${blockId}'`
+      )
+      return undefined
     }
 
     const instancedMesh = new InstancedBlockMesh(
@@ -197,6 +200,7 @@ export class InstancedVoxelRenderer {
       this.scene
     )
 
+    this.instancedMeshes.set(blockId, instancedMesh)
     return instancedMesh
   }
 
@@ -223,9 +227,7 @@ class InstancedBlockMesh {
 
   // Temporary objects for calculations
   private tempMatrix = new THREE.Matrix4()
-  private tempPosition = new THREE.Vector3()
   private tempQuaternion = new THREE.Quaternion()
-  private tempScale = new THREE.Vector3()
 
   constructor(
     geometry: THREE.BufferGeometry,
@@ -250,11 +252,7 @@ class InstancedBlockMesh {
     }
   }
 
-  addInstance(
-    position: THREE.Vector3,
-    rotation: THREE.Euler,
-    scale: THREE.Vector3
-  ): number {
+  addInstance(position: THREE.Vector3, rotation: THREE.Euler, scale: THREE.Vector3): number {
     if (this.freeSlots.length === 0) {
       console.warn('InstancedBlockMesh: No free slots available')
       return -1

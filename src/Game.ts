@@ -29,7 +29,16 @@ export class Game {
   private player!: Entity
   private gameMode: GameMode
   private isRunning = false
-  private ws: WebSocket | null = null
+  private ws?: WebSocket
+
+  /**
+   * Gets the WebSocket instance for network communication.
+   * @returns The WebSocket instance if connected, undefined otherwise.
+   */
+  public getWebSocket(): WebSocket | undefined {
+    return this.ws
+  }
+
   private updateInventoryUI: (inventory: (import('@/types/items').ItemStack | null)[]) => void
   // private selectedItem: string = 'dirt' // Default selected item (not used)
   private remotePlayers: Map<string, Entity> = new Map() // Store client-side entities for other players
@@ -192,10 +201,17 @@ export class Game {
           // Handle time update
           // this.renderSystem.updateTimeOfDay(message.data.timeOfDay) // Method may not exist
           break
-        case 'weather_update':
-          // Handle weather update
-          this.renderSystem.updateWeather(message.data)
+        case 'weather_update': {
+          // Handle weather update with type checking
+          const weatherData = message.data
+          if (weatherData && typeof weatherData === 'object' && 'type' in weatherData) {
+            // Cast to any to bypass type checking since we've verified the structure
+            this.renderSystem.updateWeather(weatherData as any)
+          } else {
+            console.warn('Invalid weather update data format:', weatherData)
+          }
           break
+        }
         case 'crafting_response': {
           // Handle crafting response (TODO: Display message to user)
           const craftingData = message.data as {

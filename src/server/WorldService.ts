@@ -7,7 +7,6 @@ export class WorldService {
   private chunks: Map<string, Chunk> = new Map()
   private loadedChunks: Set<string> = new Set()
   private chunkSize: number = DEFAULT_WORLD_CONFIG.chunkSize
-  private _worldHeight: number = DEFAULT_WORLD_CONFIG.worldHeight
 
   constructor() {}
 

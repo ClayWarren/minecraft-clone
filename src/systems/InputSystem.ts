@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { Vector3 } from 'three'
 import { System } from '@/core/System'
 import { Entity, PlayerInput } from '@/types'
-import { TransformComponent, VelocityComponent } from '@/components'
+import { TransformComponent, VelocityComponent, MeshComponent, PlayerComponent } from '@/components'
 import { Game } from '@/Game' // Import Game class
 
 export class InputSystem extends System {
@@ -25,7 +25,6 @@ export class InputSystem extends System {
 
   private camera: THREE.Camera
   private game: Game // Reference to the Game instance
-  private movementSpeed = 5
   private sprintMultiplier = 1.5
   private mouseSensitivity = 0.002
 
@@ -150,7 +149,7 @@ export class InputSystem extends System {
   }
 
   private sendAttackMessage(targetId: string, damage: number): void {
-    const ws = this.game.ws // Access WebSocket from Game instance
+    const ws = this.game.getWebSocket() // Access WebSocket from Game instance
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(
         JSON.stringify({
@@ -186,37 +185,37 @@ export class InputSystem extends System {
   }
 
   private updatePlayerMovement(player: Entity, _deltaTime: number): void {
-    const velocity = player.getComponent<VelocityComponent>('velocity')!
-    const playerComp = player.getComponent('player') as { speed?: number }
+    const transform = player.getComponent<TransformComponent>('transform')
+    const velocity = player.getComponent<VelocityComponent>('velocity')
+    const playerComp = player.getComponent<PlayerComponent>('player')
 
-    // Calculate movement direction
-    const direction = new Vector3()
+    if (!transform || !velocity || !playerComp) return
 
-    if (this.input.forward) direction.z -= 1
-    if (this.input.backward) direction.z += 1
-    if (this.input.left) direction.x -= 1
-    if (this.input.right) direction.x += 1
+    // Movement speed (sprint multiplier applied if sprinting)
+    const moveSpeed = playerComp.movementSpeed * (this.input.sprint ? this.sprintMultiplier : 1)
 
-    // Normalize and apply speed
-    if (direction.length() > 0) {
-      direction.normalize()
+    // Apply movement based on input
+    const moveDirection = new Vector3()
+    const forward = new Vector3(0, 0, -1).applyQuaternion(
+      new THREE.Quaternion().setFromEuler(new THREE.Euler(0, transform.rotation.y, 0, 'YXZ'))
+    )
 
-      // Apply camera rotation to movement direction
-      const cameraMatrix = new THREE.Matrix4()
-      cameraMatrix.extractRotation(this.camera.matrixWorld)
-      direction.applyMatrix4(cameraMatrix)
-      direction.y = 0 // Keep movement horizontal
-      direction.normalize()
+    const right = new Vector3(1, 0, 0).applyQuaternion(
+      new THREE.Quaternion().setFromEuler(new THREE.Euler(0, transform.rotation.y, 0, 'YXZ'))
+    )
 
-      // Apply speed modifiers
-      let speed = this.movementSpeed
-      if (this.input.sprint) speed *= this.sprintMultiplier
-      if (this.input.sneak) speed *= 0.3
+    if (this.input.forward) moveDirection.add(forward)
+    if (this.input.backward) moveDirection.sub(forward)
+    if (this.input.left) moveDirection.sub(right)
+    if (this.input.right) moveDirection.add(right)
 
-      velocity.velocity.x = direction.x * speed
-      velocity.velocity.z = direction.z * speed
+    // Normalize movement vector and apply speed
+    if (moveDirection.lengthSq() > 0) {
+      moveDirection.normalize()
+      velocity.velocity.x = moveDirection.x * moveSpeed
+      velocity.velocity.z = moveDirection.z * moveSpeed
     } else {
-      // Apply friction
+      // Apply friction when not moving
       velocity.velocity.x *= 0.8
       velocity.velocity.z *= 0.8
     }

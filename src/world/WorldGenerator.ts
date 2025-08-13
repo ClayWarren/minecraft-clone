@@ -207,7 +207,7 @@ export class WorldGenerator {
     }
   }
 
-  private generateStructures(chunk: Chunk, chunkX: number, chunkZ: number): void {
+  private generateStructures(_chunk: Chunk, chunkX: number, chunkZ: number): void {
     // Village generation
     const villageNoise = this.noise.noise2D(chunkX * 0.1, chunkZ * 0.1)
     if (villageNoise > 0.95) {

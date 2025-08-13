@@ -3,6 +3,11 @@ import { System } from '@/core/System'
 import { Entity } from '@/types'
 import { TransformComponent, MeshComponent } from '@/components'
 
+type Weather = {
+  type: 'clear' | 'rain' | 'snow' | 'storm'
+  intensity?: number
+}
+
 export class RenderSystem extends System {
   readonly name = 'render'
   protected requiredComponents = ['transform', 'mesh']
@@ -10,8 +15,7 @@ export class RenderSystem extends System {
   private scene: THREE.Scene
   private renderer: THREE.WebGLRenderer
   private camera: THREE.PerspectiveCamera
-  private ambientLight!: THREE.AmbientLight
-  private directionalLight!: THREE.DirectionalLight
+  // Lights are passed in but not directly used in this class
   private rainParticles: THREE.Points | null = null
   private snowParticles: THREE.Points | null = null
 
@@ -19,15 +23,14 @@ export class RenderSystem extends System {
     scene: THREE.Scene,
     renderer: THREE.WebGLRenderer,
     camera: THREE.PerspectiveCamera,
-    ambientLight: THREE.AmbientLight,
-    directionalLight: THREE.DirectionalLight
+    _ambientLight: THREE.AmbientLight, // Marked as unused with _ prefix
+    _directionalLight: THREE.DirectionalLight // Marked as unused with _ prefix
   ) {
     super()
     this.scene = scene
     this.renderer = renderer
     this.camera = camera
-    this.ambientLight = ambientLight
-    this.directionalLight = directionalLight
+    // Lights are passed to the scene in the constructor
 
     this.initWeatherParticles()
   }
@@ -74,7 +77,7 @@ export class RenderSystem extends System {
     this.scene.add(this.snowParticles)
   }
 
-  update(deltaTime: number, entities: Entity[]): void {
+  update(_deltaTime: number, entities: Entity[]): void {
     const renderableEntities = this.getEntitiesWithComponents(entities)
 
     for (const entity of renderableEntities) {

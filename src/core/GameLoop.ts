@@ -75,7 +75,7 @@ export class GameLoop {
     if (!this.isRunning) return
 
     this.currentTime = timestamp
-    let frameTime = Math.min((this.currentTime - this.lastTime) / 1000, this.MAX_FRAME_TIME)
+    const frameTime = Math.min((this.currentTime - this.lastTime) / 1000, this.MAX_FRAME_TIME)
     this.lastTime = this.currentTime
 
     this.accumulator += frameTime

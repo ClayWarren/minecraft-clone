@@ -128,7 +128,9 @@ export class ProfessionalGameEngine {
       // Setup loading callbacks
       assetManager.setCallbacks({
         onProgress: progress => {
-          console.log(`Loading assets: ${progress.percentage.toFixed(1)}% (${progress.currentAsset})`)
+          console.log(
+            `Loading assets: ${progress.percentage.toFixed(1)}% (${progress.currentAsset})`
+          )
         },
         onComplete: () => {
           console.log('✅ All assets loaded')
@@ -216,8 +218,13 @@ export class ProfessionalGameEngine {
           console.log('🎮 Game started!')
           this.setupGameScene()
         },
-        onUpdate: deltaTime => this.updateGameplay(deltaTime),
-        onRender: alpha => this.renderGame(alpha),
+        onUpdate: (deltaTime: number) => {
+          this.updatePhysics(deltaTime)
+          this.updateSystems(deltaTime, 0) // alpha not used in this context
+          this.handlePlayerInput()
+          this.updatePerformanceMonitoring()
+        },
+        onRender: (alpha: number) => this.renderGame(alpha),
         onInput: event => {
           if ((event as KeyboardEvent).code === 'Escape') {
             this.stateManager.changeState(GameState.PAUSED)
@@ -332,7 +339,8 @@ export class ProfessionalGameEngine {
   /**
    * Fixed timestep physics updates
    */
-  private updatePhysics(deltaTime: number): void {
+  // Update game physics with fixed timestep
+  private updatePhysics(_deltaTime: number): void {
     // Physics simulation would go here
     // This runs at exactly 60 FPS for consistent simulation
   }
@@ -340,12 +348,13 @@ export class ProfessionalGameEngine {
   /**
    * Variable timestep system updates
    */
-  private updateSystems(deltaTime: number, alpha: number): void {
+  // Update game systems with variable timestep
+  private updateSystems(_deltaTime: number, _alpha: number): void {
     // Clean up input buffer
     inputBuffer.cleanExpiredInputs()
 
     // Update game state
-    this.stateManager.update(deltaTime)
+    this.stateManager.update(_deltaTime)
 
     // Handle player input
     this.handlePlayerInput()
@@ -388,7 +397,8 @@ export class ProfessionalGameEngine {
   /**
    * Game-specific rendering
    */
-  private renderGame(alpha: number): void {
+  // Render the game with interpolation
+  private renderGame(_alpha: number): void {
     // Interpolation-based rendering would go here
     // Use alpha for smooth movement between fixed timesteps
   }
@@ -480,5 +490,8 @@ export interface EngineStats {
     oldestInputAge: number
   }
   currentState: GameState
-  profilerData: Record<string, { average: number; min: number; max: number; latest: number; sampleCount: number }>
+  profilerData: Record<
+    string,
+    { average: number; min: number; max: number; latest: number; sampleCount: number }
+  >
 }

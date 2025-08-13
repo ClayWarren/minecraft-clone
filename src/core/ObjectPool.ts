@@ -8,12 +8,7 @@ export class ObjectPool<T> {
   private resetFn?: (obj: T) => void
   private maxSize: number
 
-  constructor(
-    createFn: () => T,
-    resetFn?: (obj: T) => void,
-    initialSize: number = 10,
-    maxSize: number = 1000
-  ) {
+  constructor(createFn: () => T, resetFn?: (obj: T) => void, initialSize = 10, maxSize = 1000) {
     this.createFn = createFn
     this.resetFn = resetFn
     this.maxSize = maxSize
@@ -75,7 +70,7 @@ export class ObjectPool<T> {
  * Pool manager for different object types
  */
 export class PoolManager {
-  private pools = new Map<string, ObjectPool<unknown>>()
+  private pools = new Map<string, ObjectPool<any>>()
 
   /**
    * Register a new object pool
@@ -84,10 +79,10 @@ export class PoolManager {
     name: string,
     createFn: () => T,
     resetFn?: (obj: T) => void,
-    initialSize?: number,
-    maxSize?: number
+    initialSize = 10,
+    maxSize = 1000
   ): void {
-    this.pools.set(name, new ObjectPool(createFn, resetFn, initialSize, maxSize))
+    this.pools.set(name, new ObjectPool<T>(createFn, resetFn, initialSize, maxSize))
   }
 
   /**

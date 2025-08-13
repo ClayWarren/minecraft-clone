@@ -68,6 +68,7 @@ export class MobService {
 
   public updateMobsAI(worldService: {
     getBlockAt?: (x: number, y: number, z: number) => string
+    getAllChunks: () => Map<string, Chunk>
   }): void {
     this.mobs.forEach(mob => {
       // Simple random walk for all mobs for now

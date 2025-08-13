@@ -1,6 +1,5 @@
 import { System } from '@/core/System'
 import { Entity } from '@/core/Entity'
-import { InventoryComponent } from '@/components/InventoryComponent'
 
 export class InventorySystem extends System {
   public readonly name = 'inventory'
@@ -15,9 +14,10 @@ export class InventorySystem extends System {
         continue
       }
 
-      const _inventory = entity.getComponent<InventoryComponent>('inventory')
+      // Get the inventory component (currently unused)
       // In the future, we can add logic here to handle inventory updates,
       // such as checking for item durability, applying effects, etc.
+      // const inventory = entity.getComponent<InventoryComponent>('inventory')
     }
   }
 }

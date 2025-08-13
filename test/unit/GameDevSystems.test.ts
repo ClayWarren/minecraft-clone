@@ -3,15 +3,28 @@ import { ObjectPool, PoolManager } from '../../src/core/ObjectPool'
 import { GameLoop } from '../../src/core/GameLoop'
 import { Profiler, MemoryProfiler } from '../../src/core/Profiler'
 import { GameStateManager, GameState } from '../../src/core/GameStateManager'
+
+// Define a test object type for the object pool
+interface TestObject {
+  value: number
+  reset: () => void
+}
 import { InputBuffer, InputActionType } from '../../src/core/InputBuffer'
 
 describe('Game Development Best Practices', () => {
   describe('ObjectPool', () => {
-    let pool: ObjectPool<{ value: number; reset(): void }>
+    let pool: ObjectPool<TestObject>
 
     beforeEach(() => {
-      pool = new ObjectPool(
-        () => ({ value: 0, reset() { this.value = 0 } }),
+      const createTestObject = (): TestObject => ({
+        value: 0,
+        reset() {
+          this.value = 0
+        },
+      })
+
+      pool = new ObjectPool<TestObject>(
+        createTestObject,
         obj => obj.reset(),
         5, // initial size
         10 // max size
@@ -45,7 +58,7 @@ describe('Game Development Best Practices', () => {
 
     it('should create new objects when pool is empty', () => {
       // Acquire all objects
-      const objects = []
+      const objects: TestObject[] = []
       for (let i = 0; i < 6; i++) {
         objects.push(pool.acquire())
       }
@@ -59,7 +72,7 @@ describe('Game Development Best Practices', () => {
 
     it('should respect max pool size', () => {
       // Fill pool to max capacity
-      const objects = []
+      const objects: TestObject[] = []
       for (let i = 0; i < 10; i++) {
         objects.push(pool.acquire())
       }
@@ -91,7 +104,13 @@ describe('Game Development Best Practices', () => {
     })
 
     it('should register and manage multiple pools', () => {
-      poolManager.registerPool('vector', () => ({ x: 0, y: 0, z: 0 }), obj => { obj.x = obj.y = obj.z = 0 })
+      poolManager.registerPool(
+        'vector',
+        () => ({ x: 0, y: 0, z: 0 }),
+        obj => {
+          obj.x = obj.y = obj.z = 0
+        }
+      )
       poolManager.registerPool('string', () => '', undefined, 2, 5)
 
       const vector = poolManager.acquire<{ x: number; y: number; z: number }>('vector')
@@ -109,8 +128,8 @@ describe('Game Development Best Practices', () => {
     })
 
     it('should throw error for unknown pool', () => {
-      expect(() => poolManager.acquire('unknown')).toThrow('Pool \'unknown\' not found')
-      expect(() => poolManager.release('unknown', {})).toThrow('Pool \'unknown\' not found')
+      expect(() => poolManager.acquire('unknown')).toThrow("Pool 'unknown' not found")
+      expect(() => poolManager.release('unknown', {})).toThrow("Pool 'unknown' not found")
     })
   })
 
@@ -138,7 +157,7 @@ describe('Game Development Best Practices', () => {
 
       // Mock performance.now
       let time = 0
-      vi.spyOn(performance, 'now').mockImplementation(() => time += 16)
+      vi.spyOn(performance, 'now').mockImplementation(() => (time += 16))
     })
 
     afterEach(() => {
@@ -161,22 +180,22 @@ describe('Game Development Best Practices', () => {
       const testFixedUpdateSpy = vi.fn()
       const testUpdateSpy = vi.fn()
       const testRenderSpy = vi.fn()
-      
+
       gameLoop.setFixedUpdateCallback(testFixedUpdateSpy)
       gameLoop.setUpdateCallback(testUpdateSpy)
       gameLoop.setRenderCallback(testRenderSpy)
-      
+
       gameLoop.start()
       expect(gameLoop.getIsRunning()).toBe(true)
-      
+
       // Directly call tick method to test callbacks
       const gameLoopAny = gameLoop as any
-      
+
       // Simulate time passing to trigger fixed timestep
       // Start with lastTime = 0, then move to 20ms (> 16.67ms fixed timestep)
       gameLoopAny.lastTime = 0
       gameLoopAny.tick(20)
-      
+
       // Should have called the callbacks
       expect(testFixedUpdateSpy).toHaveBeenCalled()
       expect(testUpdateSpy).toHaveBeenCalled()
@@ -203,7 +222,10 @@ describe('Game Development Best Practices', () => {
       profiler.begin('test')
       // Simulate some work
       const start = performance.now()
-      while (performance.now() - start < 10) {} // Wait ~10ms
+      // Simulate work for ~10ms
+      while (performance.now() - start < 10) {
+        /* busy wait */
+      }
       profiler.end('test')
 
       const data = profiler.getData('test')
@@ -213,12 +235,12 @@ describe('Game Development Best Practices', () => {
     })
 
     it('should time function execution', () => {
-      let result = profiler.time('math', () => {
+      const result = profiler.time('math', () => {
         return 2 + 2
       })
 
       expect(result).toBe(4)
-      
+
       const data = profiler.getData('math')
       expect(data).toBeDefined()
       expect(data!.sampleCount).toBe(1)
@@ -231,7 +253,7 @@ describe('Game Development Best Practices', () => {
       })
 
       expect(result).toBe('done')
-      
+
       const data = profiler.getData('async')
       expect(data).toBeDefined()
       expect(data!.latest).toBeGreaterThan(5)
@@ -242,7 +264,10 @@ describe('Game Development Best Practices', () => {
       for (let i = 0; i < 5; i++) {
         profiler.begin('stats')
         const start = performance.now()
-        while (performance.now() - start < 5 + i) {} // Variable timing
+        // Simulate work with variable timing
+        while (performance.now() - start < 5 + i) {
+          /* busy wait */
+        }
         profiler.end('stats')
       }
 
@@ -288,7 +313,7 @@ describe('Game Development Best Practices', () => {
 
     it('should measure memory usage', () => {
       const measurement = memoryProfiler.measure()
-      
+
       expect(measurement).toHaveProperty('timestamp')
       expect(measurement).toHaveProperty('heapUsed')
       expect(measurement).toHaveProperty('heapTotal')
@@ -321,22 +346,22 @@ describe('Game Development Best Practices', () => {
 
       stateManager.registerState(GameState.MENU, {
         onEnter: enterSpy,
-        onExit: exitSpy
+        onExit: exitSpy,
       })
 
       stateManager.registerState(GameState.PLAYING, {
         onEnter: enterSpy,
-        onExit: exitSpy
+        onExit: exitSpy,
       })
 
       stateManager.registerTransition({
         from: GameState.INITIALIZING,
-        to: GameState.MENU
+        to: GameState.MENU,
       })
 
       stateManager.registerTransition({
         from: GameState.MENU,
-        to: GameState.PLAYING
+        to: GameState.PLAYING,
       })
     })
 
@@ -367,7 +392,7 @@ describe('Game Development Best Practices', () => {
     it('should pass state data correctly', () => {
       const data = { level: 1, score: 100 }
       stateManager.changeState(GameState.PLAYING, data)
-      
+
       expect(stateManager.getStateData()).toEqual(data)
       expect(enterSpy).toHaveBeenCalledWith(GameState.INITIALIZING, data)
     })
@@ -376,7 +401,7 @@ describe('Game Development Best Practices', () => {
       stateManager.registerTransition({
         from: GameState.MENU,
         to: GameState.PLAYING,
-        condition: () => false // Block transition
+        condition: () => false, // Block transition
       })
 
       stateManager.changeState(GameState.MENU)
@@ -457,11 +482,11 @@ describe('Game Development Best Practices', () => {
       // Mock KeyboardEvent in test environment
       const keyboardEvent = {
         code: 'Space',
-        repeat: false
+        repeat: false,
       } as KeyboardEvent
 
       inputBuffer.handleKeyboardInput(keyboardEvent)
-      
+
       const jumpInput = inputBuffer.peekInput(InputActionType.JUMP)
       expect(jumpInput).toBeDefined()
       expect(jumpInput!.data?.key).toBe('Space')
@@ -473,11 +498,11 @@ describe('Game Development Best Practices', () => {
         type: 'mousedown',
         button: 0, // Left click
         clientX: 100,
-        clientY: 200
+        clientY: 200,
       } as MouseEvent
 
       inputBuffer.handleMouseInput(mouseEvent)
-      
+
       const primaryInput = inputBuffer.peekInput(InputActionType.PRIMARY_ACTION)
       expect(primaryInput).toBeDefined()
       expect(primaryInput!.data?.button).toBe(0)

@@ -139,10 +139,7 @@ export class InputBuffer {
   wasTriggered(actionType: InputActionType, withinMs: number = this.BUFFER_TIME): boolean {
     const now = performance.now()
     return this.buffer.some(
-      action =>
-        action.type === actionType &&
-        !action.consumed &&
-        now - action.timestamp <= withinMs
+      action => action.type === actionType && !action.consumed && now - action.timestamp <= withinMs
     )
   }
 
@@ -184,10 +181,11 @@ export class InputBuffer {
       case 'mousedown':
         actionType = this.mouseToAction.get(event.button)
         break
-      case 'wheel':
+      case 'wheel': {
         const wheelEvent = event as WheelEvent
         actionType = wheelEvent.deltaY < 0 ? InputActionType.SCROLL_UP : InputActionType.SCROLL_DOWN
         break
+      }
     }
 
     if (actionType) {
@@ -271,7 +269,6 @@ export class InputBuffer {
  */
 export class InputComboSystem {
   private combos = new Map<string, InputCombo>()
-  private activeSequences = new Map<string, SequenceState>()
 
   /**
    * Register an input combo
@@ -323,11 +320,6 @@ export interface InputCombo {
   sequence: InputActionType[]
   maxDuration: number // Maximum time between inputs
   onTrigger: () => void
-}
-
-interface SequenceState {
-  currentIndex: number
-  startTime: number
 }
 
 // Global input buffer instance

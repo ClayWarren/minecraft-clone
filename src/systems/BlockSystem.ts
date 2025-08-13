@@ -1,9 +1,16 @@
 import * as THREE from 'three'
 import { System } from '@/core/System'
-import { Entity } from '@/types'
+import { Entity, Game } from '@/types'
 import { InventoryComponent } from '@/components'
 import { WorldComponent } from '@/components/BlockComponent'
 import { getBlockType, BlockPosition, TOOL_EFFECTIVENESS } from '@/types/blocks'
+
+declare global {
+  interface Window {
+    game: Game
+    updateHotbar?: (items: Map<string, number>) => void
+  }
+}
 
 export class BlockSystem extends System {
   readonly name = 'block'
@@ -23,8 +30,7 @@ export class BlockSystem extends System {
 
   private textureLoader: THREE.TextureLoader
   private textures: Map<string, THREE.Texture> = new Map()
-  private materials: Map<string, THREE.MeshLambertMaterial | THREE.MeshLambertMaterial[]> =
-    new Map()
+  private materials: Map<string, THREE.Material | THREE.Material[]> = new Map()
   private breakingTextures: THREE.Texture[] = []
   private breakingMaterial: THREE.MeshBasicMaterial | null = null
   private breakingMesh: THREE.Mesh | null = null
@@ -321,7 +327,7 @@ export class BlockSystem extends System {
     })
 
     // Send block update to server
-    const ws = (window as { game: { ws: WebSocket } }).game.ws // Access WebSocket from global game instance
+    const ws = window.game.ws // Access WebSocket from global game instance
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(
         JSON.stringify({
@@ -355,14 +361,23 @@ export class BlockSystem extends System {
       console.log(`No ${blockTypeToPlace} in inventory`)
       return
     }
-    // Update hotbar UI after breaking a block (inventory may have changed)
-    if (typeof window !== 'undefined' && typeof window.updateHotbar === 'function') {
-      const inventory = this.playerEntity.getComponent<InventoryComponent>('inventory')!
-      window.updateHotbar(inventory.items)
+    // Helper function to convert inventory items to a format the hotbar can use
+    const getHotbarItems = (inventory: InventoryComponent): Map<string, number> => {
+      const hotbarMap = new Map<string, number>()
+      // Only get items from the hotbar slots (first hotbarSize slots)
+      for (let i = 0; i < inventory.hotbarSize; i++) {
+        const item = inventory.getItem(i)
+        if (item) {
+          hotbarMap.set(item.item.id, item.quantity)
+        }
+      }
+      return hotbarMap
     }
-    // Update hotbar UI after placing a block (inventory may have changed)
-    if (typeof window !== 'undefined' && typeof window.updateHotbar === 'function') {
-      window.updateHotbar(inventory.items)
+
+    // Update hotbar UI after breaking/placing a block (inventory may have changed)
+    if (typeof window !== 'undefined' && window.updateHotbar) {
+      const hotbarItems = getHotbarItems(inventory)
+      window.updateHotbar(hotbarItems)
     }
 
     const world = this.worldEntity.getComponent<WorldComponent>('world')!
@@ -389,7 +404,7 @@ export class BlockSystem extends System {
     this.createBlockMesh(targetPosition, blockTypeToPlace)
 
     // Send block update to server
-    const ws = (window as { game: { ws: WebSocket } }).game.ws // Access WebSocket from global game instance
+    const ws = window.game.ws // Access WebSocket from global game instance
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(
         JSON.stringify({
@@ -456,9 +471,7 @@ export class BlockSystem extends System {
     const material = this.materials.get(blockType) // This can be a single material or an array
 
     // Ensure material is an array if it's a multi-face block
-    const finalMaterial = Array.isArray(material)
-      ? material
-      : [material, material, material, material, material, material] // Apply same material to all faces if not multi-face
+    const finalMaterial = material || new THREE.MeshLambertMaterial({ color: 0x00ff00 })
 
     const mesh = new THREE.Mesh(geometry, finalMaterial)
 

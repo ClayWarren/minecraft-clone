@@ -1,4 +1,4 @@
-import { Vector3 } from 'three'
+import { Vector3, Mesh } from 'three'
 import {
   Component,
   TransformComponent as ITransformComponent,
@@ -29,19 +29,31 @@ export class VelocityComponent implements IVelocityComponent {
   readonly type = 'velocity'
   public velocity: Vector3
   public acceleration: Vector3
+  public isGrounded: boolean
+  public jumpHeight: number
+  public speed: number
 
-  constructor(velocity = new Vector3(0, 0, 0), acceleration = new Vector3(0, 0, 0)) {
+  constructor(
+    velocity = new Vector3(0, 0, 0),
+    acceleration = new Vector3(0, 0, 0),
+    isGrounded = false,
+    jumpHeight = 1,
+    speed = 1
+  ) {
     this.velocity = velocity
     this.acceleration = acceleration
+    this.isGrounded = isGrounded
+    this.jumpHeight = jumpHeight
+    this.speed = speed
   }
 }
 
 export class MeshComponent implements IMeshComponent {
   readonly type = 'mesh'
-  public mesh: THREE.Mesh
+  public mesh: Mesh
   public visible: boolean
 
-  constructor(mesh: THREE.Mesh, visible = true) {
+  constructor(mesh: Mesh, visible = true) {
     this.mesh = mesh
     this.visible = visible
   }

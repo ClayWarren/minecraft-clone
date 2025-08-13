@@ -1,4 +1,4 @@
-import { Vector3 } from 'three'
+import { Vector3, Mesh } from 'three'
 
 // Core game types
 export interface BlockType {
@@ -78,10 +78,13 @@ export interface TransformComponent extends Component {
 export interface VelocityComponent extends Component {
   velocity: Vector3
   acceleration: Vector3
+  isGrounded: boolean
+  jumpHeight: number
+  speed: number
 }
 
 export interface MeshComponent extends Component {
-  mesh: THREE.Mesh
+  mesh: Mesh
   visible: boolean
 }
 
@@ -93,6 +96,23 @@ export interface CollisionComponent extends Component {
 export interface HealthComponent extends Component {
   current: number
   maximum: number
+}
+
+export interface Weather {
+  type: 'clear' | 'rain' | 'snow'
+  intensity: number
+}
+
+export interface Game {
+  ws: WebSocket
+  // Add other game properties as needed
+}
+
+declare global {
+  interface Window {
+    game: Game
+    updateHotbar?: (items: Map<string, number>) => void
+  }
 }
 
 export interface InventoryComponent extends Component {
