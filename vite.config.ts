@@ -12,7 +12,7 @@ export default defineConfig({
     host: true,
   },
   build: {
-    target: 'es2022',
+    target: 'baseline-widely-available', // New Vite 7 default for better browser compatibility
     outDir: 'dist',
     rollupOptions: {
       input: {

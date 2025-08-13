@@ -8,7 +8,7 @@ export interface BlockType {
   transparent: boolean
   solid: boolean
   color: number
-  texture?: string
+  texture?: string | { all?: string; top?: string; bottom?: string; side?: string }
 }
 
 export interface BlockPosition {
@@ -162,7 +162,40 @@ export const BLOCK_TYPES: Record<string, BlockType> = {
     drops: [],
     transparent: false,
     solid: true,
-    color: 0x263238
+    color: 0x263238,
+    texture: '/textures/blocks/bedrock.png'
+  },
+  leaves: {
+    id: 'leaves',
+    name: 'Leaves',
+    hardness: 0.2,
+    toolRequired: 'shears',
+    drops: ['stick'],
+    transparent: true,
+    solid: false,
+    color: 0x4CAF50,
+    texture: '/textures/blocks/leaves.png'
+  },
+  glass: {
+    id: 'glass',
+    name: 'Glass',
+    hardness: 0.3,
+    drops: [],
+    transparent: true,
+    solid: false,
+    color: 0xADD8E6,
+    texture: '/textures/blocks/glass.png'
+  },
+  crafting_table: {
+    id: 'crafting_table',
+    name: 'Crafting Table',
+    hardness: 2.5,
+    toolRequired: 'axe',
+    drops: ['crafting_table'],
+    transparent: false,
+    solid: true,
+    color: 0x8B4513,
+    texture: { top: '/textures/blocks/crafting_table_top.png', side: '/textures/blocks/crafting_table_side.png', bottom: '/textures/blocks/planks.png' }
   }
 }
 
@@ -173,7 +206,9 @@ export const TOOL_EFFECTIVENESS: Record<string, Record<string, number>> = {
     grass: 1,
     sand: 1,
     wood: 0.5,
-    stone: 0.1
+    stone: 0.1,
+    leaves: 0.1,
+    glass: 0.1
   },
   
   pickaxe: {
@@ -186,13 +221,17 @@ export const TOOL_EFFECTIVENESS: Record<string, Record<string, number>> = {
   
   axe: {
     wood: 3,
-    planks: 3
+    planks: 3,
+    crafting_table: 3
   },
   
   shovel: {
     dirt: 3,
     grass: 3,
     sand: 3
+  },
+  shears: {
+    leaves: 3
   }
 }
 

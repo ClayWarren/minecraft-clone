@@ -5,8 +5,7 @@ import {
   VelocityComponent as IVelocityComponent,
   MeshComponent as IMeshComponent,
   CollisionComponent as ICollisionComponent,
-  HealthComponent as IHealthComponent,
-  InventoryComponent as IInventoryComponent
+  HealthComponent as IHealthComponent
 } from '@/types'
 
 export class TransformComponent implements ITransformComponent {
@@ -85,42 +84,7 @@ export class HealthComponent implements IHealthComponent {
   }
 }
 
-export class InventoryComponent implements IInventoryComponent {
-  readonly type = 'inventory'
-  public items: Map<string, number> = new Map()
-  public selectedSlot: number = 0
-  public maxSlots: number
-
-  constructor(maxSlots = 36) {
-    this.maxSlots = maxSlots
-  }
-
-  addItem(itemType: string, count = 1): boolean {
-    const currentCount = this.items.get(itemType) || 0
-    this.items.set(itemType, currentCount + count)
-    return true
-  }
-
-  removeItem(itemType: string, count = 1): boolean {
-    const currentCount = this.items.get(itemType) || 0
-    if (currentCount < count) return false
-    
-    if (currentCount === count) {
-      this.items.delete(itemType)
-    } else {
-      this.items.set(itemType, currentCount - count)
-    }
-    return true
-  }
-
-  hasItem(itemType: string, count = 1): boolean {
-    return (this.items.get(itemType) || 0) >= count
-  }
-
-  getItemCount(itemType: string): number {
-    return this.items.get(itemType) || 0
-  }
-}
+// InventoryComponent is now exported from InventoryComponent.ts (ItemStack[] version)
 
 export class PlayerComponent implements Component {
   readonly type = 'player'
@@ -145,4 +109,7 @@ export class AIComponent implements Component {
 }
 
 // Re-export block components
-export { BlockComponent, WorldComponent } from './BlockComponent'
+export * from './BlockComponent'
+export * from './InventoryComponent'
+// export * from './HealthComponent' // No separate file, class is defined above
+export * from './MobComponent'

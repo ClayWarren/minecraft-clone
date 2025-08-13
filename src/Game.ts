@@ -6,16 +6,18 @@ import {
   VelocityComponent,
   CollisionComponent, 
   PlayerComponent,
-  InventoryComponent,
   HealthComponent,
-  WorldComponent
+  WorldComponent,
+  MeshComponent
 } from '@/components'
+import { InventoryComponent } from '@/components/InventoryComponent'
 import { PhysicsSystem } from '@/systems/PhysicsSystem'
 import { RenderSystem } from '@/systems/RenderSystem'
 import { InputSystem } from '@/systems/InputSystem'
 import { BlockSystem } from '@/systems/BlockSystem'
 import { WorldSystem } from '@/systems/WorldSystem'
-import { GameMode } from '@/types'
+import { GameMode } from '@/types/game'
+import { PlayerUpdateMessage } from '@/types/server'
 
 export class Game {
   private ecs: ECS
@@ -27,9 +29,17 @@ export class Game {
   private player!: Entity
   private gameMode: GameMode
   private isRunning = false
+  private ws: WebSocket | null = null
+  private updateInventoryUI: (inventory: (import('@/types/items').ItemStack | null)[]) => void
+  // private selectedItem: string = 'dirt' // Default selected item (not used)
+  private remotePlayers: Map<string, Entity> = new Map() // Store client-side entities for other players
+  private renderSystem!: RenderSystem // Store reference to RenderSystem
+  private ambientLight!: THREE.AmbientLight
+  private directionalLight!: THREE.DirectionalLight
 
-  constructor(canvas: HTMLCanvasElement, mode: GameMode = 'single') {
+  constructor(canvas: HTMLCanvasElement, mode: GameMode = 'single', updateInventoryUI: (inventory: (import('@/types/items').ItemStack | null)[]) => void) {
     this.gameMode = mode
+    this.updateInventoryUI = updateInventoryUI
     console.log(`🎮 Initializing game in ${mode} mode`)
     this.clock = new THREE.Clock()
     
@@ -46,8 +56,167 @@ export class Game {
     this.createWorld()
     this.player = this.createPlayer()
     
+    // Setup WebSocket for multiplayer
+    if (this.gameMode === 'multi') {
+      this.setupWebSocket()
+    }
+
+    // Initial UI update
+  this.updateInventoryUI(this.player.getComponent<InventoryComponent>('inventory')!.items)
+
     // Start game loop
     this.start()
+  }
+
+  public setSelectedItem(_item: string): void {
+    // No-op: selectedItem logic not implemented
+  }
+
+  private setupWebSocket(): void {
+    this.ws = new WebSocket('ws://localhost:8080')
+
+    this.ws.onopen = () => {
+      console.log('🌐 Connected to WebSocket server')
+      // Send initial player data to server
+      const playerTransform = this.player.getComponent<TransformComponent>('transform')!
+      this.ws?.send(JSON.stringify({
+        type: 'player_update',
+        data: {
+          playerId: this.player.id,
+          position: playerTransform.position,
+          rotation: playerTransform.rotation
+        },
+        timestamp: Date.now()
+      }))
+    }
+
+    this.ws.onmessage = (event) => {
+  const message = JSON.parse(event.data) as any // Use 'any' for now, define NetworkMessage type if needed
+      
+      switch (message.type) {
+        case 'player_update':
+          const playerUpdate = message as PlayerUpdateMessage
+          // Update other players' positions or local player's health/hunger/inventory
+          if (playerUpdate.data.playerId === this.player.id) {
+            // This is our player's update (e.g., from server-side hunger/health)
+            if (playerUpdate.data.health !== undefined) {
+              this.player.getComponent<HealthComponent>('health')!.current = playerUpdate.data.health
+            }
+            // Add hunger property to PlayerComponent if needed
+            if (playerUpdate.data.hunger !== undefined) {
+              (this.player.getComponent<PlayerComponent>('player') as any).hunger = playerUpdate.data.hunger
+            }
+            if (playerUpdate.data.inventory) {
+              // Convert incoming inventory data to ItemStack[]
+              // Assume playerUpdate.data.inventory is an array of { item: { id, name, ... }, quantity }
+              this.player.getComponent<InventoryComponent>('inventory')!.items = playerUpdate.data.inventory
+              this.updateInventoryUI(playerUpdate.data.inventory)
+            }
+          } else {
+            // This is an update for another player
+            let remotePlayerEntity = this.remotePlayers.get(playerUpdate.data.playerId)
+            if (!remotePlayerEntity) {
+              // Create new entity for remote player
+              remotePlayerEntity = new Entity(playerUpdate.data.playerId)
+              remotePlayerEntity.addComponent(new TransformComponent(
+                new THREE.Vector3(playerUpdate.data.position.x, playerUpdate.data.position.y, playerUpdate.data.position.z),
+                new THREE.Vector3(playerUpdate.data.rotation.x, playerUpdate.data.rotation.y, playerUpdate.data.rotation.z)
+              ))
+              // Use the new player model
+              const playerModel = this.createPlayerModel()
+              playerModel.position.copy(remotePlayerEntity.getComponent<TransformComponent>('transform')!.position)
+              this.scene.add(playerModel)
+              // MeshComponent expects a THREE.Mesh, not a THREE.Group. Use a placeholder mesh for remote players.
+              const mesh = new THREE.Mesh(
+                new THREE.BoxGeometry(1, 2, 1),
+                new THREE.MeshLambertMaterial({ color: 0x888888 })
+              )
+              mesh.position.copy(remotePlayerEntity.getComponent<TransformComponent>('transform')!.position)
+              remotePlayerEntity.addComponent(new MeshComponent(mesh))
+              this.ecs.addEntity(remotePlayerEntity)
+              this.remotePlayers.set(playerUpdate.data.playerId, remotePlayerEntity)
+              console.log(`Added remote player: ${playerUpdate.data.playerId}`)
+            } else {
+              // Update existing remote player's position and rotation
+              const transform = remotePlayerEntity.getComponent<TransformComponent>('transform')!
+              // Convert plain object to Vector3
+              transform.position.set(
+                playerUpdate.data.position.x,
+                playerUpdate.data.position.y,
+                playerUpdate.data.position.z
+              )
+              transform.rotation.set(
+                playerUpdate.data.rotation.x,
+                playerUpdate.data.rotation.y,
+                playerUpdate.data.rotation.z
+              )
+            }
+          }
+          break
+        case 'chunk_data':
+          // Handle incoming chunk data (TODO: Integrate with WorldSystem)
+          // console.log('Received chunk data:', message.data)
+          break
+        case 'block_update':
+          // Handle block updates from server (TODO: Integrate with BlockSystem)
+          // console.log('Received block update:', message.data)
+          break
+        case 'time_update':
+          // Handle time update
+          // this.renderSystem.updateTimeOfDay(message.data.timeOfDay) // Method may not exist
+          break
+        case 'weather_update':
+          // Handle weather update
+          this.renderSystem.updateWeather(message.data)
+          break
+        case 'crafting_response':
+          // Handle crafting response (TODO: Display message to user)
+          console.log('Crafting response:', message.data)
+          if (message.data.success) {
+            alert(`Crafted ${message.data.craftedItem.quantity} ${message.data.craftedItem.id} successfully!`)
+          } else {
+            alert(`Crafting failed: ${message.data.message}`)
+          }
+          break
+        case 'mob_spawn':
+          // const mobSpawn = message as MobSpawnMessage // Unused
+          // this.handleMobSpawn(mobSpawn.data) // Method may not exist
+          break
+        case 'mob_update':
+          // const mobUpdate = message as MobUpdateMessage // Unused
+          // this.handleMobUpdate(mobUpdate.data) // Method may not exist
+          break
+        case 'mob_despawn':
+          // const mobDespawn = message as MobDespawnMessage // Unused
+          // this.handleMobDespawn(mobDespawn.data.mobId) // Method may not exist
+          break
+        default:
+          console.warn('Unknown message type:', message.type)
+      }
+    }
+
+    this.ws.onclose = () => {
+      console.log('🌐 Disconnected from WebSocket server')
+    }
+
+    this.ws.onerror = (error) => {
+      console.error('WebSocket error:', error)
+    }
+  }
+
+  public sendCraftingRequest(recipeId: string): void {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({
+        type: 'crafting_request',
+        data: {
+          recipeId: recipeId
+        },
+        timestamp: Date.now()
+      }))
+      console.log(`Sent crafting request for recipe: ${recipeId}`)
+    } else {
+      console.warn('WebSocket not connected. Cannot send crafting request.')
+    }
   }
 
   private initializeRenderer(canvas: HTMLCanvasElement): void {
@@ -92,6 +261,10 @@ export class Game {
     const pointLight = new THREE.PointLight(0xffffff, 0.5, 50)
     pointLight.position.set(0, 10, 0)
     this.scene.add(pointLight)
+
+    // Store references to lights for RenderSystem
+    this.ambientLight = ambientLight
+    this.directionalLight = directionalLight
   }
 
   private initializeCamera(): void {
@@ -105,13 +278,23 @@ export class Game {
     this.camera.lookAt(0, 0, 0)
   }
 
+  // ...existing code...
+
+  // Initial UI update
+  // (should be called at the end of the constructor)
+  // this.updateInventoryUI(this.player.getComponent<InventoryComponent>('inventory')!.items)
+
+  // Start game loop
+  // this.start()
+
   private initializeSystems(): void {
     // Add core systems
-    this.ecs.addSystem(new InputSystem(this.camera))
+    this.ecs.addSystem(new InputSystem(this.camera, this))
     this.ecs.addSystem(new PhysicsSystem())
     this.ecs.addSystem(new WorldSystem(this.scene, 12345)) // Fixed seed for consistent world
     this.ecs.addSystem(new BlockSystem(this.camera, this.scene))
-    this.ecs.addSystem(new RenderSystem(this.scene, this.renderer, this.camera))
+    this.renderSystem = new RenderSystem(this.scene, this.renderer, this.camera, this.ambientLight, this.directionalLight)
+    this.ecs.addSystem(this.renderSystem)
   }
 
   private createPlayer(): Entity {
@@ -128,21 +311,77 @@ export class Game {
     player.addComponent(new CollisionComponent(new THREE.Vector3(0.8, 1.8, 0.8)))
     player.addComponent(new PlayerComponent())
     
-    // Create inventory with some starting items
-    const inventory = new InventoryComponent()
-    inventory.addItem('dirt', 64)
-    inventory.addItem('stone', 32)
-    inventory.addItem('wood', 16)
-    inventory.addItem('planks', 16)
-    player.addComponent(inventory)
+  // Create inventory with some starting items
+  const inventory = new InventoryComponent()
+  // Use ITEM_REGISTRY and ItemStack for correct inventory initialization
+  const { ITEM_REGISTRY } = require('@/types/itemRegistry')
+  inventory.addItem({ item: ITEM_REGISTRY['dirt'], quantity: 64 })
+  inventory.addItem({ item: ITEM_REGISTRY['stone'], quantity: 32 })
+  inventory.addItem({ item: ITEM_REGISTRY['wood'], quantity: 16 })
+  inventory.addItem({ item: ITEM_REGISTRY['planks'], quantity: 16 })
+  player.addComponent(inventory)
     
     player.addComponent(new HealthComponent(100))
 
-    // Player doesn't have a visible mesh in first-person
+    // Attach the player model to the local player entity
+    const playerModel = this.createPlayerModel()
+    playerModel.position.copy(player.getComponent<TransformComponent>('transform')!.position)
+    this.scene.add(playerModel)
+    // MeshComponent expects a THREE.Mesh, not a THREE.Group. Use a placeholder mesh for the local player.
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 2, 1),
+      new THREE.MeshLambertMaterial({ color: 0x00ff00 })
+    )
+    mesh.position.copy(player.getComponent<TransformComponent>('transform')!.position)
+    player.addComponent(new MeshComponent(mesh))
     
     this.ecs.addEntity(player)
     console.log('👤 Player created with starting inventory')
     return player
+  }
+
+  private createPlayerModel(): THREE.Group {
+    const playerGroup = new THREE.Group()
+
+    // Head
+    const headGeometry = new THREE.BoxGeometry(1, 1, 1)
+    const headMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 }) // Brown
+    const head = new THREE.Mesh(headGeometry, headMaterial)
+    head.position.y = 1.5 // Above body
+    playerGroup.add(head)
+
+    // Body
+    const bodyGeometry = new THREE.BoxGeometry(1, 1.5, 0.5)
+    const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0x008000 }) // Green
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial)
+    body.position.y = 0.5
+    playerGroup.add(body)
+
+    // Arms
+    const armGeometry = new THREE.BoxGeometry(0.5, 1.5, 0.5)
+    const armMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 }) // Brown
+
+    const leftArm = new THREE.Mesh(armGeometry, armMaterial)
+    leftArm.position.set(-0.75, 0.5, 0)
+    playerGroup.add(leftArm)
+
+    const rightArm = new THREE.Mesh(armGeometry, armMaterial)
+    rightArm.position.set(0.75, 0.5, 0)
+    playerGroup.add(rightArm)
+
+    // Legs
+    const legGeometry = new THREE.BoxGeometry(0.6, 1.5, 0.6)
+    const legMaterial = new THREE.MeshLambertMaterial({ color: 0x0000FF }) // Blue
+
+    const leftLeg = new THREE.Mesh(legGeometry, legMaterial)
+    leftLeg.position.set(-0.3, -0.75, 0)
+    playerGroup.add(leftLeg)
+
+    const rightLeg = new THREE.Mesh(legGeometry, legMaterial)
+    rightLeg.position.set(0.3, -0.75, 0)
+    playerGroup.add(rightLeg)
+
+    return playerGroup
   }
 
   // Legacy methods - no longer needed with block system
@@ -184,6 +423,9 @@ export class Game {
     
     // Update camera position to follow player
     this.updateCamera()
+
+    // Update player animations
+  // this.updatePlayerAnimations(deltaTime) // Disabled: animation logic not compatible with current MeshComponent
     
     // Update debug info
     this.updateDebugInfo()
@@ -191,6 +433,10 @@ export class Game {
     // Continue loop
     requestAnimationFrame(this.gameLoop.bind(this))
   }
+
+  // private updatePlayerAnimations(deltaTime: number): void {
+  //   // Animation logic removed: playerMesh is not defined and MeshComponent is not a Group
+  // }
 
   private updateDebugInfo(): void {
     const fpsElement = document.getElementById('fps')
@@ -225,6 +471,9 @@ export class Game {
     this.stop()
     this.ecs.cleanup()
     window.removeEventListener('resize', this.onWindowResize.bind(this))
+    if (this.ws) {
+      this.ws.close()
+    }
   }
 
   // Public getters for debugging

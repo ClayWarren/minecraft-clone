@@ -1,5 +1,100 @@
 import { Game } from './Game'
-import { GameMode } from './types'
+import { GameMode, DEFAULT_GAME_MODE } from './types/game'
+import { Player } from './types/server'
+
+// UI Elements
+const inventoryDisplay = document.getElementById('inventory-display') as HTMLDivElement
+const hotbarDisplay = document.getElementById('hotbar') as HTMLDivElement
+const craftingUI = document.getElementById('crafting-ui') as HTMLDivElement
+const closeCraftingBtn = document.getElementById('close-crafting-btn') as HTMLButtonElement
+const craftingRecipesContainer = document.querySelector('.crafting-recipes') as HTMLDivElement
+
+let selectedHotbarSlot = 0 // 0-indexed
+
+// Hardcoded recipes (should ideally come from server or a shared config)
+const CRAFTING_RECIPES: Record<string, { ingredients: Record<string, number>; output: { id: string; quantity: number } }> = {
+  planks: { ingredients: { wood: 1 }, output: { id: 'planks', quantity: 4 } },
+  sticks: { ingredients: { planks: 2 }, output: { id: 'sticks', quantity: 4 } },
+  wooden_pickaxe: { ingredients: { planks: 3, sticks: 2 }, output: { id: 'wooden_pickaxe', quantity: 1 } },
+  stone_pickaxe: { ingredients: { stone: 3, sticks: 2 }, output: { id: 'stone_pickaxe', quantity: 1 } },
+  iron_pickaxe: { ingredients: { iron_ingot: 3, sticks: 2 }, output: { id: 'iron_pickaxe', quantity: 1 } },
+  diamond_pickaxe: { ingredients: { diamond: 3, sticks: 2 }, output: { id: 'diamond_pickaxe', quantity: 1 } }
+}
+
+// Function to update inventory UI
+function updateInventoryUI(inventory: Map<string, number>): void {
+  if (!inventoryDisplay) return
+
+  inventoryDisplay.innerHTML = '' // Clear existing slots
+
+  inventory.forEach((count, item) => {
+    const slot = document.createElement('div')
+    slot.classList.add('inventory-slot')
+    slot.innerHTML = `<span>${item}</span><span class="item-count">${count}</span>`
+    inventoryDisplay.appendChild(slot)
+  })
+}
+
+// Function to update hotbar UI
+function updateHotbarUI(inventory: Map<string, number>, selectedSlot: number): void {
+  if (!hotbarDisplay) return
+
+  hotbarDisplay.innerHTML = '' // Clear existing slots
+
+  const hotbarSize = 9 // Minecraft hotbar size
+  const inventoryItems = Array.from(inventory.keys()) // Get item names
+
+  for (let i = 0; i < hotbarSize; i++) {
+    const slot = document.createElement('div')
+    slot.classList.add('hotbar-slot')
+    if (i === selectedSlot) {
+      slot.classList.add('active')
+    }
+
+    const itemName = inventoryItems[i]
+    if (itemName) {
+      const itemCount = inventory.get(itemName) || 0
+      slot.innerHTML = `<span>${itemName}</span><span class="item-count">${itemCount}</span>`
+    } else {
+      slot.innerHTML = `<span>${i + 1}</span>` // Slot number
+    }
+    hotbarDisplay.appendChild(slot)
+  }
+}
+
+// Function to populate crafting UI
+function populateCraftingUI(gameInstance: Game): void {
+  if (!craftingRecipesContainer) return
+
+  craftingRecipesContainer.innerHTML = '' // Clear existing recipes
+
+  for (const recipeId in CRAFTING_RECIPES) {
+    const recipe = CRAFTING_RECIPES[recipeId]
+    const recipeCard = document.createElement('div')
+    recipeCard.classList.add('recipe-card')
+
+    const ingredientsHtml = Object.entries(recipe.ingredients)
+      .map(([item, count]) => `${count} ${item}`)
+      .join(', ')
+
+    recipeCard.innerHTML = `
+      <h3>${recipe.output.id} (${recipe.output.quantity})</h3>
+      <p class="recipe-ingredients">Ingredients: ${ingredientsHtml}</p>
+      <button class="craft-button" data-recipe-id="${recipeId}">Craft</button>
+    `
+    craftingRecipesContainer.appendChild(recipeCard)
+  }
+
+  // Add event listeners to craft buttons
+  craftingRecipesContainer.querySelectorAll('.craft-button').forEach(button => {
+    button.addEventListener('click', (event) => {
+      const recipeId = (event.target as HTMLButtonElement).dataset.recipeId
+      if (recipeId) {
+        gameInstance.sendCraftingRequest(recipeId)
+      }
+    })
+  })
+}
 
 // Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Determine game mode from URL
   const urlParams = new URLSearchParams(window.location.search)
-  const gameMode: GameMode = urlParams.get('multiplayer') === 'true' ? 'multi' : 'single'
+  const gameMode: GameMode = urlParams.get('multiplayer') === 'true' ? 'multi' : DEFAULT_GAME_MODE
   
   console.log(`🎮 Starting in ${gameMode}player mode`)
 
@@ -26,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (gameContainer) gameContainer.style.display = 'block'
 
   // Initialize game
-  const game = new Game(canvas, gameMode)
+  const game = new Game(canvas, gameMode, updateInventoryUI)
 
   // Handle game cleanup on page unload
   window.addEventListener('beforeunload', () => {
@@ -35,6 +130,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Add global game reference for debugging
   ;(window as any).game = game
+
+  // Initial hotbar update
+  updateHotbarUI(new Map(), selectedHotbarSlot) // Empty inventory initially
+
+  // Keyboard input for hotbar selection and crafting UI toggle
+  document.addEventListener('keydown', (event) => {
+    if (document.pointerLockElement) { // Only if cursor is locked
+      const numKey = parseInt(event.key)
+      if (!isNaN(numKey) && numKey >= 1 && numKey <= 9) {
+        selectedHotbarSlot = numKey - 1 // Adjust to 0-indexed
+        updateHotbarUI(game.getPlayer().getComponent<InventoryComponent>('inventory')!.items, selectedHotbarSlot)
+        // Inform Game.ts about the selected item change
+        const inventory = game.getPlayer().getComponent<InventoryComponent>('inventory')!.items
+        const selectedItemName = Array.from(inventory.keys())[selectedHotbarSlot]
+        game.setSelectedItem(selectedItemName || 'air') // Pass selected item name to Game
+      } else if (event.key === 'c' || event.key === 'C') {
+        // Toggle crafting UI
+        if (craftingUI.style.display === 'block') {
+          craftingUI.style.display = 'none'
+          document.exitPointerLock()
+        } else {
+          craftingUI.style.display = 'block'
+          populateCraftingUI(game)
+          canvas.requestPointerLock() // Re-lock pointer after closing UI
+        }
+      }
+    }
+  })
+
+  // Mouse wheel for hotbar selection
+  document.addEventListener('wheel', (event) => {
+    if (document.pointerLockElement) {
+      event.preventDefault() // Prevent page scrolling
+      if (event.deltaY < 0) {
+        // Scroll up (previous slot)
+        selectedHotbarSlot = (selectedHotbarSlot - 1 + 9) % 9
+      } else {
+        // Scroll down (next slot)
+        selectedHotbarSlot = (selectedHotbarSlot + 1) % 9
+      }
+      updateHotbarUI(game.getPlayer().getComponent<InventoryComponent>('inventory')!.items, selectedHotbarSlot)
+      // Inform Game.ts about the selected item change
+      const inventory = game.getPlayer().getComponent<InventoryComponent>('inventory')!.items
+      const selectedItemName = Array.from(inventory.keys())[selectedHotbarSlot]
+      game.setSelectedItem(selectedItemName || 'air') // Pass selected item name to Game
+    }
+  }, { passive: false })
+
+  // Close crafting UI button
+  if (closeCraftingBtn) {
+    closeCraftingBtn.addEventListener('click', () => {
+      craftingUI.style.display = 'none'
+      canvas.requestPointerLock()
+    })
+  }
 })
 
 // Show instructions
@@ -47,6 +197,7 @@ console.log(`
 - Ctrl: Sprint
 - Click: Lock cursor
 - ESC: Unlock cursor
+- C: Toggle Crafting UI
 `)
 
 // Setup menu event listeners

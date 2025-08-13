@@ -1,0 +1,46 @@
+<div id="hotbar" style="position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 1000;"></div>
+<script type="module">
+import { ITEM_REGISTRY } from './src/types/itemRegistry.js';
+
+const hotbar = document.getElementById('hotbar');
+const HOTBAR_SIZE = 9;
+let selectedSlot = 0;
+
+function renderHotbar(inventory) {
+  hotbar.innerHTML = '';
+  for (let i = 0; i < HOTBAR_SIZE; i++) {
+    const slot = document.createElement('div');
+    slot.style.width = '48px';
+    slot.style.height = '48px';
+    slot.style.border = i === selectedSlot ? '3px solid #FFD700' : '2px solid #888';
+    slot.style.background = '#222';
+    slot.style.display = 'flex';
+    slot.style.alignItems = 'center';
+    slot.style.justifyContent = 'center';
+    slot.style.fontSize = '18px';
+    slot.style.color = '#fff';
+    slot.style.position = 'relative';
+    slot.style.borderRadius = '6px';
+    if (inventory[i]) {
+      slot.textContent = `${ITEM_REGISTRY[inventory[i].item.id]?.name || inventory[i].item.id} (${inventory[i].quantity})`;
+    } else {
+      slot.textContent = '';
+    }
+    hotbar.appendChild(slot);
+  }
+}
+
+// Listen for number key presses to change selected slot
+window.addEventListener('keydown', (e) => {
+  if (e.key >= '1' && e.key <= '9') {
+    selectedSlot = parseInt(e.key, 10) - 1;
+    // TODO: Notify game logic of selected slot change
+    renderHotbar(window.game?.player?.getComponent('inventory')?.items || []);
+  }
+});
+
+// Expose a function to update the hotbar from game logic
+window.updateHotbar = function(inventory) {
+  renderHotbar(inventory);
+};
+</script>

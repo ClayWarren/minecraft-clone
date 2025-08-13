@@ -3,6 +3,7 @@ import { Vector3 } from 'three'
 import { System } from '@/core/System'
 import { Entity, PlayerInput } from '@/types'
 import { TransformComponent, VelocityComponent } from '@/components'
+import { Game } from '@/Game' // Import Game class
 
 export class InputSystem extends System {
   readonly name = 'input'
@@ -23,13 +24,15 @@ export class InputSystem extends System {
   }
 
   private camera: THREE.Camera
+  private game: Game // Reference to the Game instance
   private movementSpeed = 5
   private sprintMultiplier = 1.5
   private mouseSensitivity = 0.002
 
-  constructor(camera: THREE.Camera) {
+  constructor(camera: THREE.Camera, game: Game) {
     super()
     this.camera = camera
+    this.game = game
     this.setupEventListeners()
   }
 
@@ -79,7 +82,29 @@ export class InputSystem extends System {
   }
 
   private onMouseDown(event: MouseEvent): void {
-    if (event.button === 0) this.input.leftClick = true
+    if (!document.pointerLockElement) return
+
+    if (event.button === 0) { // Left click
+      this.input.leftClick = true
+      // Check for mob attack
+      const raycaster = new THREE.Raycaster()
+      raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera)
+      const intersects = raycaster.intersectObjects(this.game.getScene().children, true)
+
+      for (const intersect of intersects) {
+        // Check if the intersected object belongs to a mob entity
+        const mobEntity = this.game.getECS().getAllEntities().find(entity => {
+          const meshComp = entity.getComponent<MeshComponent>('mesh')
+          return meshComp && meshComp.mesh === intersect.object && entity.hasComponent('mob')
+        })
+
+        if (mobEntity) {
+          console.log('Attacking mob:', mobEntity.id)
+          this.sendAttackMessage(mobEntity.id, 5) // Deal 5 damage for now
+          return // Stop processing, attack handled
+        }
+      }
+    }
     if (event.button === 2) this.input.rightClick = true
   }
 
@@ -90,6 +115,24 @@ export class InputSystem extends System {
 
   private requestPointerLock(): void {
     document.body.requestPointerLock()
+  }
+
+  private sendAttackMessage(targetId: string, damage: number): void {
+    const ws = this.game.ws // Access WebSocket from Game instance
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({
+        type: 'attack',
+        data: {
+          targetId: targetId,
+          damage: damage,
+          attackerId: this.game.getPlayer().id // Player's own ID
+        },
+        timestamp: Date.now()
+      }))
+      console.log(`Sent attack message to ${targetId} for ${damage} damage.`)
+    } else {
+      console.warn('WebSocket not connected. Cannot send attack message.')
+    }
   }
 
   update(deltaTime: number, entities: Entity[]): void {
